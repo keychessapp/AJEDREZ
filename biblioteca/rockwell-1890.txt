@@ -1,0 +1,37 @@
+; Biblioteca book file. One file per book.
+; Header lines first, then one block per position, each starting with a line "#".
+; Keys: fen (required) | text (statement, English) | text_es (optional Spanish) | solution (optional, hidden until asked)
+; Lines that do not start with a key continue the previous key. Lines starting with ";" are comments.
+title: Collection of Chess Problems
+author: Col. A. F. Rockwell
+year: 1890
+
+#
+fen:8/4pp2/3pk3/4ppP1/B7/8/3R4/6QK w - - 0 1
+text: White to play and mate in two.
+text_es: Juegan blancas y dan mate en dos.
+solution:
+
+#
+fen:
+text:
+text_es:
+solution:
+
+#
+fen:
+text:
+text_es:
+solution:
+
+#
+fen:
+text:
+text_es:
+solution:
+
+#
+fen:
+text:
+text_es:
+solution:

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Drills · Enroque</title>
+<style>
+/* Same palette and page layout as Enroque (../index.html): board column on the left, panel on the right (under the board on phones) */
+:root{color-scheme:dark;--bg:#161c28;--panel:#1f2838;--line:#2e3a50;--text:#e6ebf5;--mute:#93a0b8;--accent:#5b8bd9;--good:#81c784;--bad:#e57373;--light:#b9c5da;--dark:#5f7597}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
+header{display:flex;align-items:center;gap:20px;padding:12px 24px;background:var(--panel);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:22px;color:inherit;text-decoration:none}
+nav{display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto}
+nav a{padding:8px 14px;border-radius:8px;color:var(--mute);cursor:pointer;text-decoration:none;white-space:nowrap}
+nav a.on{background:var(--line);color:var(--text)}nav a.off{opacity:.5;cursor:default}
+nav small{font-size:11px;margin-left:4px}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;color:var(--text);background:var(--line);padding:9px 14px}
+button:hover{background:#3a4a66}
+select{font:inherit;color:var(--text);background:#0003;border:1px solid var(--line);border-radius:8px;padding:8px}
+select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{display:flex;gap:32px;justify-content:center;align-items:flex-start;padding:24px;flex-wrap:wrap}
+.bcol{display:flex;flex-direction:column;gap:8px;width:min(70vh,92vw)}
+.pl{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.clk{font:700 20px ui-monospace,monospace;background:#0007;padding:4px 12px;border-radius:6px;visibility:hidden}
+.clk.on{visibility:visible}.clk.low{color:var(--bad)}   /* invisible spacer: keeps the board exactly where Play and Puzzles put it */
+.board{width:100%;aspect-ratio:1;position:relative}
+#cg{width:100%;height:100%;border-radius:6px;overflow:hidden;box-shadow:0 8px 30px #0006;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));user-select:none;-webkit-user-select:none}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;width:100%;max-width:340px}
+#auth{max-width:55vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#drill{width:100%;margin-bottom:12px;font-size:18px;font-weight:700}
+.bar{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.bar label{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--mute);font-size:14px}
+.bar select{flex:0 0 58%;min-width:0;font-size:14px}
+.say{height:150px;display:flex;align-items:center;justify-content:center;gap:16px;text-align:center;margin-bottom:4px;overflow:hidden}
+.say .big{font-size:44px;font-weight:700;letter-spacing:2px;line-height:1.1}
+.say .big.txt{font-size:26px;letter-spacing:0}
+.say .msg{font-size:18px;font-weight:500}
+.say .msg.ok{color:var(--good)}.say .msg.no{color:var(--bad)}
+.say .msg.sm{font-size:15px;font-weight:400;color:var(--mute)}
+.chips{flex:1;min-width:0;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:8px 16px}
+.ch{font-size:24px;font-weight:700;letter-spacing:1px;white-space:nowrap}
+.chips.w .ch{font-size:16px;letter-spacing:0;font-weight:500}
+.ch sup{font-size:10px;font-weight:400;color:var(--mute);margin-right:4px;letter-spacing:0}
+.legend{display:grid;grid-template-columns:repeat(5,20px);grid-template-rows:repeat(5,20px);gap:2px;font-size:11px;flex:none}
+.legend i{display:grid;place-items:center;font-style:normal;border-radius:4px;background:#0003;color:var(--mute)}
+.legend i.t{background:var(--line);color:var(--text);font-weight:700}
+.legend i.on{background:var(--accent);color:#fff}
+.legend i.k{background:transparent;font-size:14px;color:var(--text)}
+.prog{min-height:24px;text-align:center;color:var(--mute);margin-bottom:6px}
+.prog.ok{color:var(--good);font-weight:600}.prog.no{color:var(--bad);font-weight:600}
+.sq{position:relative;overflow:hidden;min-width:0;min-height:0;border:0;border-radius:0;padding:0;margin:0;font:inherit;cursor:default}
+.sq:hover{background:inherit}
+.sq.l,.sq.l:hover{background:var(--light)}.sq.d,.sq.d:hover{background:var(--dark)}
+.sq.ans{cursor:pointer}
+.sq.ans:hover{filter:brightness(1.12)}
+/* Enroque's own pieces, same files the main board uses */
+.sq .p{position:absolute;inset:0;pointer-events:none;background:center/contain no-repeat}
+.p.wK{background-image:url(../pieces/wK.svg)}.p.wQ{background-image:url(../pieces/wQ.svg)}.p.wR{background-image:url(../pieces/wR.svg)}
+.p.wB{background-image:url(../pieces/wB.svg)}.p.wN{background-image:url(../pieces/wN.svg)}
+.p.bK{background-image:url(../pieces/bK.svg)}.p.bQ{background-image:url(../pieces/bQ.svg)}.p.bR{background-image:url(../pieces/bR.svg)}
+.p.bB{background-image:url(../pieces/bB.svg)}.p.bN{background-image:url(../pieces/bN.svg)}
+.sq .n{position:absolute;right:3px;bottom:1px;font-size:11px;font-weight:700}
+.sq .c{position:absolute;left:3px;top:1px;font-size:10px;font-weight:600;opacity:.8}
+.sq.l .n,.sq.l .c{color:#44546f}
+.sq.d .n,.sq.d .c{color:#e3eaf6}
+.sq.real,.sq.real:hover{background:var(--good)}.sq.bad,.sq.bad:hover{background:var(--bad)}
+.sq.miss,.sq.miss:hover{background:#ffd54f}
+.sq.att{box-shadow:inset 0 0 0 3px var(--bad)}
+.sq.real .n,.sq.real .c,.sq.bad .n,.sq.bad .c{color:#10202a}
+.primary{display:block;width:100%;height:52px;margin-top:10px;background:var(--accent);padding:14px;font-size:18px;font-weight:700}
+.primary:hover{background:var(--accent);filter:brightness(1.1)}
+.primary.dim,.primary.dim:hover{background:var(--line);filter:none;font-weight:500}
+.primary[hidden]{display:block;visibility:hidden}
+.second{display:block;width:100%;margin-top:8px}
+.second[hidden]{display:none}
+.mute{color:var(--mute);font-size:14px}
+.score{height:20px;text-align:center;color:var(--mute);margin-top:12px;font-size:14px}
+@media (max-width:760px){
+ header{flex-wrap:wrap;gap:8px;padding:10px 12px}.logo{font-size:20px}
+ nav{order:3;flex-basis:100%;overflow-x:auto}nav a{padding:8px 12px;white-space:nowrap}
+ main{padding:12px;gap:14px}.bcol{width:100%}.card{max-width:none;padding:16px}.clk{font-size:18px}
+}
+</style></head><body>
+<header>
+  <a class="logo" href="../">♞ Enroque</a>
+  <nav>
+    <a href="../" data-i="play"></a>
+    <a href="../#puzzles" data-i="puzzles"></a>
+    <a class="on" data-i="drills"></a>
+    <a href="../#biblioteca" data-i="library"></a>
+    <a class="off"><span data-i="learn"></span><small data-i="soon"></small></a>
+  </nav>
+  <button id="lang">EN</button><button id="auth"></button>
+</header>
+<main>
+  <div class="bcol">
+    <div class="pl"><span></span><span class="clk" aria-hidden="true">--:--</span></div>
+    <div class="board"><div id="cg"></div></div>
+    <div class="pl"><span></span><span class="clk" id="clk2" aria-hidden="true">--:--</span></div>
+  </div>
+  <section class="card"><select id="drill"></select><div id="dp"></div></section>
+</main>
+<script src="drills.js"></script>
+</body></html>

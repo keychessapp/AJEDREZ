@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://lichess.org; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Enroque</title>
+<link rel="stylesheet" href="vendor/chessground.base.css">
+<style>
+:root{--bg:#161c28;--panel:#1f2838;--line:#2e3a50;--text:#e6ebf5;--mute:#93a0b8;--accent:#5b8bd9}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,sans-serif}
+header{display:flex;align-items:center;gap:20px;padding:12px 24px;background:var(--panel);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:22px}
+nav{display:flex;gap:6px;flex:1}
+nav a{padding:8px 14px;border-radius:8px;color:var(--mute);cursor:pointer}
+nav a{text-decoration:none;white-space:nowrap}nav{min-width:0;overflow-x:auto}
+nav a.on{background:var(--line);color:var(--text)}nav a.off{opacity:.5;cursor:default}
+nav small{font-size:11px;margin-left:4px}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;color:var(--text);background:var(--line);padding:9px 14px}
+button:hover{background:#3a4a66}
+main{display:flex;gap:32px;justify-content:center;align-items:flex-start;padding:24px;flex-wrap:wrap}
+.bcol{display:flex;flex-direction:column;gap:8px;width:min(70vh,92vw)}
+.board{width:100%;aspect-ratio:1}
+#cg{width:100%;height:100%;border-radius:6px;overflow:hidden;box-shadow:0 8px 30px #0006}
+cg-board{background-image:var(--board);background-size:cover}
+.pl{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.clk{font:700 20px ui-monospace,monospace;background:#0007;padding:4px 12px;border-radius:6px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+h2{margin:0 0 14px;font-size:18px}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.presets button.sel{background:var(--accent)}
+.sw{display:flex;gap:10px;align-items:center;margin:10px 0}
+.primary{width:100%;background:var(--accent);padding:14px;font-size:18px;font-weight:700}
+.mute{color:var(--mute);font-size:14px}
+.moves,.chat{overflow:auto;background:#0003;border-radius:8px;padding:8px;font-size:14px}
+.moves{height:130px}.chat{height:120px}
+.res{font-weight:700;margin:8px 0;min-height:24px}
+.row{display:flex;gap:8px;margin:8px 0}.row button{flex:1}
+input[type=text],select{flex:1;background:#0003;border:1px solid var(--line);border-radius:8px;color:var(--text);padding:8px;font:inherit}
+hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px;margin:10px 0}.pgrid button{padding:10px 0}.pgrid button.done{background:#2f5a3a}
+.ltext{background:#0003;border-radius:8px;padding:10px 12px;margin:10px 0;white-space:pre-wrap}.lnk{background:none;padding:0 0 8px;color:var(--mute)}.lnk:hover{background:none;color:var(--text)}
+#ginfo{white-space:pre-wrap;margin-bottom:8px}
+.board{position:relative}
+.cg-wrap square.move-dest{background:radial-gradient(rgba(20,30,50,.30) 22%,transparent 24%)}
+.cg-wrap square.oc.move-dest{background:radial-gradient(transparent 0,transparent 64%,rgba(20,30,50,.30) 66%)}
+.cg-wrap square.move-dest:hover{background:rgba(91,139,217,.45)}
+.cg-wrap square.selected{background:rgba(91,139,217,.5)}
+.cg-wrap square.last-move{background:rgba(255,213,79,.28)}
+.cg-wrap square.check{background:radial-gradient(ellipse at center,rgba(220,60,60,.95) 0,rgba(200,40,40,.5) 25%,transparent 89%)}
+.mate{position:absolute;width:12.5%;height:12.5%;pointer-events:none;z-index:5;display:flex;justify-content:flex-end;align-items:flex-start}
+.mate span{width:1.5em;height:1.5em;border-radius:50%;background:#d93c3c;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 5px #0009;transform:translate(30%,-30%)}
+#pzv select{width:100%;margin:4px 0 12px}#pzv p{margin:6px 0}
+
+body{touch-action:manipulation;-webkit-text-size-adjust:100%}
+.card{width:100%;max-width:340px}
+#auth{max-width:55vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.set{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0003;border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.set:hover{background:#0005}.set small{display:block;color:var(--mute);font-size:13px}.x{padding:4px 10px}
+details summary{cursor:pointer;margin:12px 0 6px;color:var(--mute)}
+@media (max-width:760px){
+ header{flex-wrap:wrap;gap:8px;padding:10px 12px}.logo{font-size:20px}
+ nav{order:3;flex-basis:100%;overflow-x:auto}nav a{padding:8px 12px;white-space:nowrap}
+ main{padding:12px;gap:14px}.bcol{width:100%}.card{max-width:none;padding:16px}.clk{font-size:18px}
+}
+</style></head><body>
+<header>
+  <div class="logo">♞ Enroque</div>
+  <nav>
+    <a class="on" id="navplay" data-v="play" data-i="play"></a>
+    <a id="navpuz" data-v="puz" data-i="puzzles"></a>
+    <a href="drills/" data-i="drills"></a>
+    <a id="navlib" data-v="lib" data-i="library"></a>
+    <a class="off"><span data-i="learn"></span><small data-i="soon"></small></a>
+  </nav>
+  <button id="lang">EN</button><button id="auth"></button>
+</header>
+<main>
+  <div class="bcol">
+    <div class="pl"><span id="oppn"></span><span class="clk" id="oc">--:--</span></div>
+    <div class="board"><div id="cg"></div></div>
+    <div class="pl"><span id="myn"></span><span class="clk" id="mc">--:--</span></div>
+  </div>
+  <section class="card" id="playp">
+    <h2 data-i="time"></h2>
+    <div class="presets" id="presets">
+      <button data-t="3+2">3+2</button><button data-t="5+3">5+3</button>
+      <button data-t="10+0" class="sel">10+0</button><button data-t="15+10">15+10</button>
+    </div>
+    <label class="sw"><input type="checkbox" id="rated" checked><span data-i="rated"></span></label>
+    <button id="go" class="primary" data-i="go"></button>
+    <button id="cancel" class="primary" data-i="cancel" hidden></button>
+    <p class="mute" data-i="hint"></p>
+    <hr>
+    <h2 data-i="botlbl"></h2>
+    <div class="row"><select id="bsel">
+      <option value="ai1">Stockfish 1</option><option value="ai3">Stockfish 3</option><option value="ai5">Stockfish 5</option><option value="ai8">Stockfish 8</option>
+      <option value="maia1">Maia 1100</option><option value="maia5">Maia 1500</option><option value="maia9">Maia 1900</option>
+    </select><button id="bot" data-i="bot"></button></div>
+    <p class="mute" id="msg"></p>
+  </section>
+  <section class="card" id="gamep" hidden>
+    <div class="mute" id="ginfo" hidden></div>
+    <div class="moves" id="moves"></div>
+    <div class="res" id="res"></div>
+    <div class="row"><button id="resign"></button><button id="draw" data-i="draw"></button><button id="again" data-i="again" hidden></button></div>
+    <div class="chat" id="chat"></div>
+    <div class="row"><input type="text" id="ci" data-ph="chatph"><button id="cs">↵</button></div>
+    <label class="sw"><input type="checkbox" id="mute"><span data-i="mute"></span></label>
+  </section>
+  <section class="card" id="puzp" hidden><div id="pzv"></div></section>
+  <section class="card" id="libp" hidden><div id="lbv"></div></section>
+</main>
+<script src="vendor/chessground.js"></script>
+<script src="vendor/chessops.js"></script>
+<script src="app.js"></script></body></html>
