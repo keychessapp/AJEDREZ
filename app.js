@@ -345,3 +345,4 @@ finish().then(me).then(u=>{user=u;paint();
   if(u)stream('/api/stream/event',ev=>{if(ev.type=='gameStart')openGame(ev.game.gameId||ev.game.id)})});
 if(location.hash=='#puzzles')show('puz');
 if(location.hash=='#biblioteca')show('lib');
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});

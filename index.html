@@ -1,7 +1,14 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://lichess.org; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://lichess.org; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f2838">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Enroque">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Enroque</title>
 <link rel="stylesheet" href="vendor/chessground.base.css">
 <style>
@@ -58,6 +65,9 @@ body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 .set{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0003;border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
 .set:hover{background:#0005}.set small{display:block;color:var(--mute);font-size:13px}.x{padding:4px 10px}
 details summary{cursor:pointer;margin:12px 0 6px;color:var(--mute)}
+html,body{overscroll-behavior-y:contain}
+.board{touch-action:none}
+@media (max-width:760px) and (orientation:portrait){.bcol{position:sticky;top:0;z-index:5;background:var(--bg);padding-bottom:6px}}
 @media (max-width:760px){
  header{flex-wrap:wrap;gap:8px;padding:10px 12px}.logo{font-size:20px}
  nav{order:3;flex-basis:100%;overflow-x:auto}nav a{padding:8px 12px;white-space:nowrap}

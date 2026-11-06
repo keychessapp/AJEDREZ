@@ -1,7 +1,14 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#1f2838">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Enroque">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
 <title>Drills · Enroque</title>
 <style>
 /* Same palette and page layout as Enroque (../index.html): board column on the left, panel on the right (under the board on phones) */
@@ -66,6 +73,13 @@ main{display:flex;gap:32px;justify-content:center;align-items:flex-start;padding
 .sq.real,.sq.real:hover{background:var(--good)}.sq.bad,.sq.bad:hover{background:var(--bad)}
 .sq.miss,.sq.miss:hover{background:#ffd54f}
 .sq.att{box-shadow:inset 0 0 0 3px var(--bad)}
+.sq.alt{box-shadow:inset 0 0 0 3px var(--accent)}
+.sq.me{box-shadow:inset 0 0 0 3px var(--accent)}
+.p.ghost{opacity:.55}
+.hand{display:flex;align-items:center;gap:12px;text-align:left}
+.hp{flex:none;width:64px;height:64px;background-position:center;background-repeat:no-repeat;background-size:contain}
+.hand .msg{font-size:14px;line-height:1.4}
+.notes{font-size:14px;color:var(--mute);margin-top:4px}.notes div{margin:3px 0}.notes .no{color:var(--bad)}.notes .ok{color:var(--good)}
 .sq.real .n,.sq.real .c,.sq.bad .n,.sq.bad .c{color:#10202a}
 .primary{display:block;width:100%;height:52px;margin-top:10px;background:var(--accent);padding:14px;font-size:18px;font-weight:700}
 .primary:hover{background:var(--accent);filter:brightness(1.1)}
@@ -75,6 +89,9 @@ main{display:flex;gap:32px;justify-content:center;align-items:flex-start;padding
 .second[hidden]{display:none}
 .mute{color:var(--mute);font-size:14px}
 .score{height:20px;text-align:center;color:var(--mute);margin-top:12px;font-size:14px}
+html,body{overscroll-behavior-y:contain}
+#cg{touch-action:none}
+@media (max-width:760px) and (orientation:portrait){.bcol{position:sticky;top:0;z-index:5;background:var(--bg);padding-bottom:6px}}
 @media (max-width:760px){
  header{flex-wrap:wrap;gap:8px;padding:10px 12px}.logo{font-size:20px}
  nav{order:3;flex-basis:100%;overflow-x:auto}nav a{padding:8px 12px;white-space:nowrap}
