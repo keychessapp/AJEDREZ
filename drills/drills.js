@@ -2,7 +2,7 @@
 const T = {
   es: {
     login: 'Entrar con Lichess', logged: '✓ Lichess', play: 'Jugar', puzzles: 'Puzzles', drills: 'Drills', library: 'Biblioteca', learn: 'Aprender', soon: 'pronto', other: 'EN',
-    names: { 'invisible-knight': 'Caballo invisible', 'knight-forks': 'Forks de caballo', 'safe-square': 'Casilla segura', 'fork-skewer': 'Fork o skewer', 'safe-moves': 'Movimientos seguros' }, aria: 'Drill',
+    names: { 'invisible-knight': 'Caballo invisible', 'knight-forks': 'Forks de caballo', 'safe-square': 'Casilla segura', 'fork-skewer': 'Fork o skewer', 'safe-moves': 'Movimientos seguros', 'capture-path': 'Ruta de capturas', 'king-zone': 'Zona del rey', 'loose-pieces': 'Piezas colgadas' }, aria: 'Drill',
     level: 'Nivel', notation: 'Notación', show: 'Mostrar', jump: 'salto', jumps: 'saltos',
     arrows: 'Flechas ↑↑→', words: 'Palabras', clock: 'Reloj', clockhard: 'Reloj difícil', step: 'Paso a paso', seq: 'Secuencia',
     remember: 'Recuerda dónde está el caballo', start: 'Empezar', next: 'Siguiente', answer: 'Responder',
@@ -18,6 +18,17 @@ const T = {
     fkDone: n => n ? '¡Completo! Con ' + n + (n === 1 ? ' error' : ' errores') : '¡Completo y sin errores!', fkReveal: 'Mostrar las que faltan', fkGaveUp: 'Estas eran las que faltaban',
     and: ' y ', in: ' en ', pn: { K: 'rey', Q: 'dama', R: 'torre', B: 'alfil', N: 'caballo', P: 'peón' },
     fkScore: (a, b) => 'Sin errores: ' + a + ' de ' + b,
+    rnd: 'Aleatorio', cpPiece: 'Pieza', cpCount: 'Peones', cpTask: 'Captura todas las piezas rivales, una por salto: cada movimiento debe capturar. Si eliges un camino sin salida, pierdes.',
+    cpProg: (k, n) => 'Capturas: ' + k + ' de ' + n, cpPick: 'Toca una pieza rival para capturarla', cpCannot: sq => sq + ': tu pieza no puede capturarla desde aquí',
+    cpBlocked: (sq, by) => sq + ': el camino está bloqueado por ' + by, cpOk: sq => '✓ ' + sq, cpWin: '¡Ruta completa!',
+    cpLost: 'Sin salida: desde ahí ya no se pueden capturar todas. Esta es una ruta posible.', cpRetry: 'Reintentar', cpScore: (a, b) => 'A la primera: ' + a + ' de ' + b,
+    kzTask: 'Toca las casillas resaltadas junto al rey que reciben 2 o más ataques de las piezas rivales.', kzLeft: n => n === 1 ? 'Falta 1 casilla' : 'Faltan ' + n + ' casillas',
+    kzErr: n => 'Errores: ' + n, kzOk: (sq, k, list) => '✓ ' + sq + ': ' + k + ' ataques (' + list + ')',
+    kzFew: (sq, k, list) => k ? sq + ': solo 1 ataque (' + list + ')' : sq + ': no recibe ataques', kzOut: 'Elige entre las casillas resaltadas',
+    kzDone: n => n ? 'Completo con ' + n + (n === 1 ? ' error' : ' errores') : '¡Perfecto!', kzGaveUp: 'Estas eran las que faltaban', kzScore: (a, b) => 'Perfectas: ' + a + ' de ' + b, kzRival: 'Piezas rivales',
+    lpTask: 'Marca todas las piezas sin protección, de cualquier color. Los reyes no cuentan.', lpLeft: n => n === 1 ? 'Falta 1 pieza' : 'Faltan ' + n + ' piezas',
+    lpErr: n => 'Errores: ' + n, lpOk: sq => '✓ ' + sq + ': sin protección', lpProt: (sq, list) => sq + ': está protegida por ' + list, lpKing: 'El rey no cuenta',
+    lpDone: n => n ? 'Completo con ' + n + (n === 1 ? ' error' : ' errores') : '¡Perfecto!', lpGaveUp: 'Estas eran las que faltaban', lpScore: (a, b) => 'Perfectas: ' + a + ' de ' + b, lpSide: 'Piezas por bando',
     smLevel: 'Nivel', smTask: 'Marca todas las casillas seguras a las que puede moverse tu pieza (la del anillo azul), según cómo se mueve. Puedes capturar, pero la casilla debe quedar sin atacar.',
     smLeft: n => n === 1 ? 'Falta 1 casilla segura' : 'Faltan ' + n + ' casillas seguras', smErr: (a, b) => 'Errores: ' + (a + b) + ' (atacada ' + a + ', movimiento imposible ' + b + ')',
     smOk: (sq, cap) => '✓ ' + sq + (cap ? ': captura y queda a salvo' : ': a salvo'), smThreat: (sq, list, cap) => sq + (cap ? ': la pieza está protegida por ' : ': la capturaría ') + list,
@@ -25,12 +36,13 @@ const T = {
     smDone: (n, up) => n ? 'Completo con ' + n + (n === 1 ? ' error' : ' errores') + '. Mismo nivel.' : (up ? '¡Perfecto! Subes al nivel ' + up : '¡Perfecto!'),
     smReveal: 'Mostrar las que faltan', smGaveUp: 'Estas eran las que faltaban', smScore: (a, b) => 'Perfectas: ' + a + ' de ' + b,
     fsPiece: 'Tu pieza', fsRival: 'Pieza rival', fsRandom: 'Aleatoria', fsMarks: n => 'Marcadas: ' + n, fsCheck: 'Comprobar', fsNone: 'No es posible',
-    fsTask: 'Tu pieza no está en el tablero. Marca todas las casillas donde haría un fork o un skewer y ganaría la pieza rival sin riesgo. Si no hay ninguna, pulsa No es posible.',
+    fsTask: 'Tu pieza no está en el tablero. Marca cada casilla donde atacaría a la vez al rey y a la otra pieza (fork), o a una con la otra detrás en línea (skewer). Si no hay ninguna, pulsa No es posible.',
     fsPerfect: '¡Perfecto!', fsPerfectNone: 'Correcto: no había ninguna', fsMist: n => n + (n === 1 ? ' casilla errónea' : ' casillas erróneas'),
-    fsMiss: (n, l) => 'Faltaban: ' + l, fsAlt: l => 'También ganaban: ' + l, fsTapHint: 'Toca una casilla para ver por qué.',
-    fsKinds: { fork: 'fork', skewer: 'skewer', pin: 'clavada', trap: 'trampa', mate: 'mate' },
-    fsWin: (sq, k, req) => sq + ': ' + k + '. Gana la pieza por la fuerza.' + (req ? '' : ' (extra, no era obligatoria)'),
-    fsWhy: { byK: 'el rey la captura', byM: 'la pieza rival la captura', stale: 'deja al rey ahogado', nothing: 'no ataca ni al rey ni a la pieza', escape: 'la pieza rival puede salvarse', prot: 'el rey recaptura después de tomar' },
+    fsMiss: (n, l) => 'Faltaban: ' + l, fsAlt: l => 'También valían: ' + l, fsTapHint: 'Toca una casilla para ver por qué.',
+    fsKinds: { fork: 'fork', skewer: 'skewer', pin: 'clavada' },
+    fsKindTxt: { fork: 'ataca al rey y a la pieza a la vez', skewer: 'ataca al rey y la pieza queda detrás, en la misma línea', pin: 'ataca la pieza y el rey queda detrás, en la misma línea' },
+    fsWin: (sq, k, txt, req) => sq + ': ' + k + ', ' + txt + '.' + (req ? '' : ' (extra, no era obligatoria)'),
+    fsWhy: { none: 'no ataca ni al rey ni a la pieza', onlyK: 'solo ataca al rey', onlyM: 'solo ataca a la pieza' },
     fsScore: (a, b) => 'Perfectas: ' + a + ' de ' + b,
     sfTask: 'Toca una casilla vacía que no esté atacada por ninguna pieza antes de que se acabe el tiempo.', sfStart: 'Empezar', sfEnd: 'Terminar', sfAgain: 'Jugar otra vez',
     sfLevel: l => 'Nivel ' + l, sfMax: 'máximo', sfHits: n => 'Aciertos: ' + n, sfBest: (l, n) => n ? 'Récord: ' + n + ' aciertos (nivel ' + l + ')' : '',
@@ -39,7 +51,7 @@ const T = {
   },
   en: {
     login: 'Log in with Lichess', logged: '✓ Lichess', play: 'Play', puzzles: 'Puzzles', drills: 'Drills', library: 'Library', learn: 'Learn', soon: 'soon', other: 'ES',
-    names: { 'invisible-knight': 'Invisible Knight', 'knight-forks': 'Knight forks', 'safe-square': 'Safe Square Survivor', 'fork-skewer': 'Fork or skewer', 'safe-moves': 'Safe moves' }, aria: 'Drill',
+    names: { 'invisible-knight': 'Invisible Knight', 'knight-forks': 'Knight forks', 'safe-square': 'Safe Square Survivor', 'fork-skewer': 'Fork or skewer', 'safe-moves': 'Safe moves', 'capture-path': 'Capture path', 'king-zone': 'King zone', 'loose-pieces': 'Loose pieces' }, aria: 'Drill',
     level: 'Level', notation: 'Notation', show: 'Show', jump: 'jump', jumps: 'jumps',
     arrows: 'Arrows ↑↑→', words: 'Words', clock: 'Clock', clockhard: 'Clock hard', step: 'Step by step', seq: 'Sequence',
     remember: 'Remember where the knight is', start: 'Start', next: 'Next', answer: 'Answer',
@@ -55,6 +67,17 @@ const T = {
     fkDone: n => n ? 'Complete! With ' + n + (n === 1 ? ' error' : ' errors') : 'Complete, no errors!', fkReveal: 'Show the missing ones', fkGaveUp: 'These were missing',
     and: ' and ', in: ' on ', pn: { K: 'king', Q: 'queen', R: 'rook', B: 'bishop', N: 'knight', P: 'pawn' },
     fkScore: (a, b) => 'No errors: ' + a + ' of ' + b,
+    rnd: 'Random', cpPiece: 'Piece', cpCount: 'Pawns', cpTask: 'Capture every enemy piece, one per jump: every move must capture. If you pick a dead-end route, you lose.',
+    cpProg: (k, n) => 'Captures: ' + k + ' of ' + n, cpPick: 'Tap an enemy piece to capture it', cpCannot: sq => sq + ': your piece cannot capture it from here',
+    cpBlocked: (sq, by) => sq + ': the path is blocked by ' + by, cpOk: sq => '✓ ' + sq, cpWin: 'Route complete!',
+    cpLost: 'Dead end: from there you can no longer capture them all. This is one possible route.', cpRetry: 'Retry', cpScore: (a, b) => 'First try: ' + a + ' of ' + b,
+    kzTask: 'Tap the highlighted squares next to the king that receive 2 or more attacks from the enemy pieces.', kzLeft: n => n === 1 ? '1 square missing' : n + ' squares missing',
+    kzErr: n => 'Errors: ' + n, kzOk: (sq, k, list) => '✓ ' + sq + ': ' + k + ' attacks (' + list + ')',
+    kzFew: (sq, k, list) => k ? sq + ': only 1 attack (' + list + ')' : sq + ': no attacks', kzOut: 'Choose among the highlighted squares',
+    kzDone: n => n ? 'Complete with ' + n + (n === 1 ? ' error' : ' errors') : 'Perfect!', kzGaveUp: 'These were missing', kzScore: (a, b) => 'Perfect: ' + a + ' of ' + b, kzRival: 'Enemy pieces',
+    lpTask: 'Mark every unprotected piece, of either color. Kings do not count.', lpLeft: n => n === 1 ? '1 piece missing' : n + ' pieces missing',
+    lpErr: n => 'Errors: ' + n, lpOk: sq => '✓ ' + sq + ': unprotected', lpProt: (sq, list) => sq + ': is protected by ' + list, lpKing: 'Kings do not count',
+    lpDone: n => n ? 'Complete with ' + n + (n === 1 ? ' error' : ' errors') : 'Perfect!', lpGaveUp: 'These were missing', lpScore: (a, b) => 'Perfect: ' + a + ' of ' + b, lpSide: 'Pieces per side',
     smLevel: 'Level', smTask: 'Mark every safe square your piece (the one with the blue ring) can move to, following how it moves. You may capture, but the square must end up unattacked.',
     smLeft: n => n === 1 ? '1 safe square missing' : n + ' safe squares missing', smErr: (a, b) => 'Errors: ' + (a + b) + ' (attacked ' + a + ', impossible move ' + b + ')',
     smOk: (sq, cap) => '✓ ' + sq + (cap ? ': captures and stays safe' : ': safe'), smThreat: (sq, list, cap) => sq + (cap ? ': the piece is protected by ' : ': would be captured by ') + list,
@@ -62,12 +85,13 @@ const T = {
     smDone: (n, up) => n ? 'Complete with ' + n + (n === 1 ? ' error' : ' errors') + '. Same level.' : (up ? 'Perfect! Up to level ' + up : 'Perfect!'),
     smReveal: 'Show the missing ones', smGaveUp: 'These were missing', smScore: (a, b) => 'Perfect: ' + a + ' of ' + b,
     fsPiece: 'Your piece', fsRival: 'Enemy piece', fsRandom: 'Random', fsMarks: n => 'Marked: ' + n, fsCheck: 'Check', fsNone: 'Not possible',
-    fsTask: 'Your piece is not on the board. Mark every square where it would make a fork or a skewer and win the enemy piece without risk. If there is none, press Not possible.',
+    fsTask: 'Your piece is not on the board. Mark every square where it would attack both the king and the other piece at once (fork), or one with the other behind it on the same line (skewer). If there is none, press Not possible.',
     fsPerfect: 'Perfect!', fsPerfectNone: 'Correct: there was none', fsMist: n => n + (n === 1 ? ' wrong square' : ' wrong squares'),
-    fsMiss: (n, l) => 'Missed: ' + l, fsAlt: l => 'Also winning: ' + l, fsTapHint: 'Tap a square to see why.',
-    fsKinds: { fork: 'fork', skewer: 'skewer', pin: 'pin', trap: 'trap', mate: 'mate' },
-    fsWin: (sq, k, req) => sq + ': ' + k + '. Wins the piece by force.' + (req ? '' : ' (bonus, not required)'),
-    fsWhy: { byK: 'the king captures it', byM: 'the enemy piece captures it', stale: 'stalemates the king', nothing: 'attacks neither the king nor the piece', escape: 'the enemy piece can get away', prot: 'the king recaptures after you take' },
+    fsMiss: (n, l) => 'Missed: ' + l, fsAlt: l => 'Also valid: ' + l, fsTapHint: 'Tap a square to see why.',
+    fsKinds: { fork: 'fork', skewer: 'skewer', pin: 'pin' },
+    fsKindTxt: { fork: 'attacks the king and the piece at once', skewer: 'attacks the king, with the piece behind it on the same line', pin: 'attacks the piece, with the king behind it on the same line' },
+    fsWin: (sq, k, txt, req) => sq + ': ' + k + ', ' + txt + '.' + (req ? '' : ' (bonus, not required)'),
+    fsWhy: { none: 'attacks neither the king nor the piece', onlyK: 'attacks only the king', onlyM: 'attacks only the piece' },
     fsScore: (a, b) => 'Perfect: ' + a + ' of ' + b,
     sfTask: 'Tap an empty square that no piece attacks before time runs out.', sfStart: 'Start', sfEnd: 'Finish', sfAgain: 'Play again',
     sfLevel: l => 'Level ' + l, sfMax: 'max', sfHits: n => 'Correct: ' + n, sfBest: (l, n) => n ? 'Best: ' + n + ' correct (level ' + l + ')' : '',
@@ -170,60 +194,23 @@ function genSafe(level, rnd) {
 }
 
 // Fork or skewer. Your piece T (Q/R/B/N) is NOT on the board. The defender has a king K and one piece M (Q/R/B/N).
-// For each empty square: if T went there, would it win M by force? Defender moves once (every legal reply is tried), then your
-// next move must capture M, your piece must never be capturable, and the king must not recapture. Nothing protects your piece.
+// Pure geometry, on purpose: for each empty square, would T there fork K and M (attack both at once) or skewer them (attack one
+// with the other directly behind it on the same line)? Whether your piece could be captured is ignored: the drill trains seeing forks.
 const fsKey = (x, y) => x + ',' + y;
 const fsHas = (list, x, y) => list.some(p => p[0] === x && p[1] === y);
-function fsRayMoves(t, x, y, block) {            // targets of the defender's Q/R/B/N; block[key] = 'K' (own king, stops) or 'A' (your piece, capture)
-  const out = [], ok = (a, b) => a >= 0 && a < 8 && b >= 0 && b < 8;
-  if (t === 'N') { KM.forEach(([dx, dy]) => { const a = x + dx, b = y + dy; if (ok(a, b) && block[fsKey(a, b)] !== 'K') out.push([a, b]); }); return out; }
-  const dirs = t === 'Q' ? SL.R.concat(SL.B) : SL[t];
-  dirs.forEach(([dx, dy]) => { let a = x + dx, b = y + dy; while (ok(a, b)) { const w = block[fsKey(a, b)]; if (w === 'K') break; out.push([a, b]); if (w === 'A') break; a += dx; b += dy; } });
-  return out;
-}
 function fsBehind(a, p, q) {                     // p lies between a and q on one straight line
   const dx = q.x - a.x, dy = q.y - a.y, ex = p.x - a.x, ey = p.y - a.y;
   return dx * ey - dy * ex === 0 && dx * ex + dy * ey > 0 && Math.abs(ex) + Math.abs(ey) < Math.abs(dx) + Math.abs(dy);
 }
-function fsKind(T, K, M, A) {
-  const occ = {}; [K, M, A].forEach(p => { occ[fsKey(p.x, p.y)] = 1; });
-  const at = pieceAttacks(T, A.x, A.y, occ), chk = fsHas(at, K.x, K.y), hit = fsHas(at, M.x, M.y);
-  if (chk && hit) return 'fork';
-  if (chk && fsBehind(A, K, M)) return 'skewer';
-  if (hit && fsBehind(A, M, K)) return 'pin';
-  return 'trap';
+function fsEval(T, K, M, s) {                    // fork and skewer are required; pin (piece in front, king behind) is accepted as an extra
+  const A = { t: T, x: s[0], y: s[1] }, occ = {}; [K, M, A].forEach(p => { occ[fsKey(p.x, p.y)] = 1; });
+  const at = pieceAttacks(T, A.x, A.y, occ), chk = fsHas(at, K.x, K.y), hit = fsHas(at, M.x, M.y), slider = T !== 'N';
+  if (chk && hit) return { win: true, kind: 'fork' };
+  if (slider && chk && fsBehind(A, K, M)) return { win: true, kind: 'skewer' };
+  if (slider && hit && fsBehind(A, M, K)) return { win: true, kind: 'pin' };
+  return { win: false, reason: chk ? 'onlyK' : hit ? 'onlyM' : 'none', decoy: chk || hit };
 }
-function fsEval(T, K, M, s) {
-  const A = { t: T, x: s[0], y: s[1] }, ok = (a, b) => a >= 0 && a < 8 && b >= 0 && b < 8, kind0 = fsKind(T, K, M, A);
-  const occ0 = {}; [K, M, A].forEach(p => { occ0[fsKey(p.x, p.y)] = 1; });
-  const at0 = pieceAttacks(T, A.x, A.y, occ0), check = fsHas(at0, K.x, K.y), hitsM = fsHas(at0, M.x, M.y);
-  const decoy = (check && hitsM) || (check && fsBehind(A, K, M));
-  const occKA = {}; occKA[fsKey(M.x, M.y)] = 1; occKA[fsKey(A.x, A.y)] = 1;
-  const atNoK = pieceAttacks(T, A.x, A.y, occKA), replies = [];       // your attacks with the king lifted off (it cannot hide on the same line)
-  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
-    const nx = K.x + dx, ny = K.y + dy; if ((!dx && !dy) || !ok(nx, ny) || (nx === M.x && ny === M.y)) continue;
-    if (nx === A.x && ny === A.y) { replies.push({ cap: 'K' }); continue; }
-    if (fsHas(atNoK, nx, ny)) continue;
-    replies.push({ K: { x: nx, y: ny }, M });
-  }
-  const block = {}; block[fsKey(K.x, K.y)] = 'K'; block[fsKey(A.x, A.y)] = 'A';
-  fsRayMoves(M.t, M.x, M.y, block).forEach(([tx, ty]) => {
-    if (tx === A.x && ty === A.y) { replies.push({ cap: 'M' }); return; }
-    const o = {}; o[fsKey(K.x, K.y)] = 1; o[fsKey(tx, ty)] = 1; o[fsKey(A.x, A.y)] = 1;
-    if (fsHas(pieceAttacks(T, A.x, A.y, o), K.x, K.y)) return;          // that move would leave the king in check
-    replies.push({ K, M: { t: M.t, x: tx, y: ty } });
-  });
-  if (!replies.length) return check ? { win: true, kind: (kind0 === 'fork' || kind0 === 'skewer') ? kind0 : 'mate' } : { win: false, reason: 'stale', decoy };
-  const cap = replies.find(r => r.cap); if (cap) return { win: false, reason: cap.cap === 'K' ? 'byK' : 'byM', decoy };
-  let why = null;
-  for (const r of replies) {
-    const o = {}; o[fsKey(r.K.x, r.K.y)] = 1; o[fsKey(r.M.x, r.M.y)] = 1; o[fsKey(A.x, A.y)] = 1;
-    if (!fsHas(pieceAttacks(T, A.x, A.y, o), r.M.x, r.M.y)) { why = (!check && !hitsM) ? 'nothing' : 'escape'; break; }
-    if (Math.max(Math.abs(r.K.x - r.M.x), Math.abs(r.K.y - r.M.y)) === 1) why = why || 'prot';
-  }
-  return why ? { win: false, reason: why, decoy } : { win: true, kind: kind0 };
-}
-function fsAnalyse(T, K, M) {                    // R = forks and skewers (required), B = other forced wins (bonus)
+function fsAnalyse(T, K, M) {                    // R = forks and skewers (required), B = pins (extras)
   const res = {}, R = [], B = []; let decoys = 0;
   for (let x = 0; x < 8; x++) for (let y = 0; y < 8; y++) {
     if ((x === K.x && y === K.y) || (x === M.x && y === M.y)) continue;
@@ -232,9 +219,9 @@ function fsAnalyse(T, K, M) {                    // R = forks and skewers (requi
   }
   return { res, R, B, decoys };
 }
-function genFS(tSel, mSel, rnd) {                // about 30% of positions have no answer; those get near-miss decoys when possible
-  rnd = rnd || Math.random; const pick = () => 'QRBN'[Math.floor(rnd() * 4)], T = tSel || pick(); let Mt = mSel || pick(); if (!tSel && !mSel && T === 'N' && Mt === 'N') Mt = 'QRB'[Math.floor(rnd() * 3)];   // knight vs knight never has an answer
-  let none = rnd() < 0.3, last = null;
+function genFS(tSel, mSel, rnd) {                // bishops and knights: about 30% of positions have no answer, with near-miss decoys when possible
+  rnd = rnd || Math.random; const pick = () => 'QRBN'[Math.floor(rnd() * 4)], T = tSel || pick(); const Mt = mSel || pick();
+  let none = rnd() < 0.3 && (T === 'B' || T === 'N'), last = null;   // queens and rooks nearly always have a fork, so "none" only comes up for bishops and knights
   for (let tries = 0; tries < 3000; tries++) {
     if (tries === 600) none = !none;             // this pairing never gives the wanted kind: take the other
     const kx = Math.floor(rnd() * 8), ky = Math.floor(rnd() * 8); let mx, my;
@@ -311,6 +298,85 @@ function genSM(level, rnd) {
   }
   return best;
 }
+
+// Capture path: your piece P and n enemy pawns. Every move must capture a pawn, so n pawns take n moves. The route exists by
+// construction; a wrong first choice can strand the piece. Nothing ever captures your piece: only visualizing the path matters.
+function ptCaps(t, mc, pos, targets, mask) {      // legal captures from pos; i = index of the captured target
+  const rem = [], idx = []; targets.forEach((p, i) => { if ((mask >> i) & 1) { rem.push(p); idx.push(i); } });
+  return smTargets(t, mc, pos.x, pos.y, rem).filter(m => m.cap >= 0).map(m => ({ x: m.x, y: m.y, i: idx[m.cap] }));
+}
+function ptSolve(t, mc, pos, targets, mask, memo) {   // an order of target indexes that captures them all, or null
+  if (!mask) return [];
+  const key = pos.x + ',' + pos.y + ',' + mask; if (memo.has(key)) return memo.get(key);
+  let res = null;
+  for (const m of ptCaps(t, mc, pos, targets, mask)) { const r = ptSolve(t, mc, m, targets, mask & ~(1 << m.i), memo); if (r) { res = [m.i].concat(r); break; } }
+  memo.set(key, res); return res;
+}
+function genPT(tSel, nSel, rnd) {
+  rnd = rnd || Math.random; const kinds = 'NNBRQK', t = tSel || kinds[Math.floor(rnd() * kinds.length)], n = nSel || 2 + Math.floor(rnd() * 7), mc = rnd() < 0.5 ? 'w' : 'b';
+  let last = null;
+  for (let tries = 0; tries < 3000; tries++) {
+    const start = { x: Math.floor(rnd() * 8), y: Math.floor(rnd() * 8) }, used = {}, targets = []; used[fsKey(start.x, start.y)] = 1; let cur = start, ok = true;
+    for (let i = 0; i < n && ok; i++) {            // random walk on the empty board; the squares it lands on get the pawns
+      const opts = smTargets(t, mc, cur.x, cur.y, []).filter(m => !used[fsKey(m.x, m.y)] && m.y >= 1 && m.y <= 6);
+      if (!opts.length) { ok = false; break; }
+      const m = opts[Math.floor(rnd() * opts.length)]; used[fsKey(m.x, m.y)] = 1; targets.push({ t: 'P', x: m.x, y: m.y }); cur = m;
+    }
+    if (!ok) continue;
+    const full = (1 << n) - 1, memo = new Map(), sol = ptSolve(t, mc, start, targets, full, memo); if (!sol) continue;
+    const caps = ptCaps(t, mc, start, targets, full), good = caps.filter(c => ptSolve(t, mc, c, targets, full & ~(1 << c.i), memo));
+    last = { t, mc, start, targets, sol };
+    if (n >= 3 && tries < 1500 && (caps.length < 2 || good.length === caps.length)) continue;      // want at least one tempting dead end
+    return last;
+  }
+  return last;
+}
+
+// King zone: our king and n enemy pieces. The squares around the king are highlighted; mark those attacked 2+ times.
+function kzAnalyse(king, enemies, ec) {
+  const occ = {}; occ[fsKey(king.x, king.y)] = 1; enemies.forEach(p => { occ[fsKey(p.x, p.y)] = 1; });
+  const at = enemies.map(p => pieceAttacks(p.t, p.x, p.y, occ, ec)), by = (x, y) => enemies.filter((p, i) => fsHas(at[i], x, y)), cand = [];
+  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+    const x = king.x + dx, y = king.y + dy; if ((!dx && !dy) || x < 0 || x > 7 || y < 0 || y > 7 || occ[fsKey(x, y)]) continue;
+    cand.push({ x, y, att: by(x, y) });
+  }
+  return { cand, multi: cand.filter(c => c.att.length >= 2), check: by(king.x, king.y).length > 0 };
+}
+function genKZ(nSel, rnd) {
+  rnd = rnd || Math.random;
+  for (let tries = 0; tries < 6000; tries++) {
+    const mc = rnd() < 0.5 ? 'w' : 'b', ec = mc === 'w' ? 'b' : 'w', n = nSel || 3 + Math.floor(rnd() * 4);
+    const king = { x: Math.floor(rnd() * 8), y: Math.floor(rnd() * 8) }, used = {}; used[fsKey(king.x, king.y)] = 1;
+    const types = []; if (n >= 3 && rnd() < 0.35) types.push('K'); while (types.length < n) types.push('QRRBBNNP'[Math.floor(rnd() * 8)]);
+    const enemies = types.map(t => { let x, y; do { x = Math.floor(rnd() * 8); y = t === 'P' ? 1 + Math.floor(rnd() * 6) : Math.floor(rnd() * 8); } while (used[fsKey(x, y)]); used[fsKey(x, y)] = 1; return { t, x, y }; });
+    if (enemies.some(p => p.t === 'K' && Math.max(Math.abs(p.x - king.x), Math.abs(p.y - king.y)) < 2)) continue;
+    const a = kzAnalyse(king, enemies, ec);
+    if (a.check || a.cand.length < 3 || !a.multi.length || a.multi.length > 4 || a.multi.length === a.cand.length) continue;
+    if (tries < 3000 && !a.cand.some(c => c.att.length <= 1)) continue;
+    return { mc, ec, king, enemies, cand: a.cand, multi: a.multi };
+  }
+  return null;
+}
+
+// Loose pieces: a few pieces of each colour (plus kings). Mark every piece that no friendly piece protects.
+function lpAnalyse(pieces) {
+  const occ = {}; pieces.forEach(p => { occ[fsKey(p.x, p.y)] = 1; });
+  const at = pieces.map(p => pieceAttacks(p.t, p.x, p.y, occ, p.c));
+  return pieces.map((p, i) => ({ p, def: pieces.filter((q, j) => j !== i && q.c === p.c && fsHas(at[j], p.x, p.y)) }));
+}
+function genLP(kSel, rnd) {
+  rnd = rnd || Math.random;
+  for (let tries = 0; tries < 6000; tries++) {
+    const k = kSel || 2 + Math.floor(rnd() * 4), used = {}, pieces = [];
+    const put = (t, c) => { let x, y; do { x = Math.floor(rnd() * 8); y = t === 'P' ? 1 + Math.floor(rnd() * 6) : Math.floor(rnd() * 8); } while (used[fsKey(x, y)]); used[fsKey(x, y)] = 1; pieces.push({ t, c, x, y }); };
+    ['w', 'b'].forEach(c => { put('K', c); const bag = ['Q', 'R', 'R', 'B', 'B', 'N', 'N', 'P', 'P', 'P', 'P']; for (let i = 0; i < k; i++) put(bag.splice(Math.floor(rnd() * bag.length), 1)[0], c); });
+    const wk = pieces[0], bk = pieces[k + 1]; if (Math.max(Math.abs(wk.x - bk.x), Math.abs(wk.y - bk.y)) < 2) continue;
+    const info = lpAnalyse(pieces), loose = info.filter(a => a.p.t !== 'K' && !a.def.length);
+    if (loose.length < 1 || loose.length > 2 * k - 1 || loose.length > 5) continue;
+    return { pieces, info, loose };
+  }
+  return null;
+}
 const sqName = (x, y) => 'abcdefgh'[x] + (y + 1);
 // PURE-END
 
@@ -334,7 +400,7 @@ function buildBoard(boardEl, click) {
   boardEl.replaceChildren(...sqs);
   return {
     sqs, at: (x, y) => sqs[(7 - y) * 8 + x],
-    clear: () => sqs.forEach(b => { b.classList.remove('real', 'bad', 'ans', 'att', 'miss', 'alt', 'me'); b.querySelectorAll('.p,.n').forEach(e => e.remove()); })
+    clear: () => sqs.forEach(b => { b.classList.remove('real', 'bad', 'ans', 'att', 'miss', 'alt', 'me', 'cand'); b.querySelectorAll('.p,.n').forEach(e => e.remove()); })
   };
 }
 const mkSelect = (box, key, values) => { const s = mk('select'); values.forEach(v => { const o = mk('option'); o.value = v; s.append(o); }); const l = mk('label'); l.append(document.createTextNode(''), s); box.append(l); return { l, s, key }; };
@@ -507,7 +573,7 @@ function mountKnightForks(boardEl, panel) {
     puz.pieces.forEach(p => at(p.x, p.y).append(pieceEl(puz.color + p.t)));
     status();
   }
-  pc.onchange = () => { cnt = pc.value; store.set('fk:count', cnt); newPuzzle(); };
+  pc.onchange = () => { cnt = pc.value === 'random' ? 'random' : +pc.value; store.set('fk:count', cnt); newPuzzle(); };
   show.onclick = () => { if (!over) finish(true); };
   act.onclick = newPuzzle;
   labels(); newPuzzle();
@@ -569,8 +635,8 @@ function mountSafeSquare(boardEl, panel, ctx) {
 
 // ---------- Drill: Fork or skewer ----------
 // The defender (random colour) has a king and one piece. Your piece is NOT on the board. Tap (mark) every square where it would make
-// a fork or a skewer and win the enemy piece by force, then press Check, or press Not possible. No feedback until then, so the
-// answer "none" is not given away. Forks and skewers are required; pins, traps and mates are accepted as extras.
+// a fork or a skewer (no safety rule: only the geometry counts), then press Check, or press Not possible. No feedback until then, so the
+// answer "none" is not given away. Forks and skewers are required; a pin is accepted as an extra.
 function mountForkSkewer(boardEl, panel) {
   const PT = ['random', 'Q', 'R', 'B', 'N'];
   let st = store.get('fs:t', 'random'), sm = store.get('fs:m', 'random');
@@ -617,7 +683,7 @@ function mountForkSkewer(boardEl, panel) {
       out.wrong.slice(0, 4).forEach(k => line('no', name(k) + ': ' + L.fsWhy[puz.res[k].reason]));
       if (out.missed.length) line('no', L.fsMiss(out.missed.length, out.missed.slice(0, 8).map(k => name(k) + ' (' + L.fsKinds[puz.res[k].kind] + ')').join(', ')));
       if (out.alt.length) line('', L.fsAlt(out.alt.slice(0, 8).map(k => name(k) + ' (' + L.fsKinds[puz.res[k].kind] + ')').join(', ')));
-      if (tapped) { const r = puz.res[tapped]; line(r.win ? 'ok' : 'no', r.win ? L.fsWin(name(tapped), L.fsKinds[r.kind], r.kind === 'fork' || r.kind === 'skewer') : name(tapped) + ': ' + L.fsWhy[r.reason]); }
+      if (tapped) { const r = puz.res[tapped]; line(r.win ? 'ok' : 'no', r.win ? L.fsWin(name(tapped), L.fsKinds[r.kind], L.fsKindTxt[r.kind], r.kind === 'fork' || r.kind === 'skewer') : name(tapped) + ': ' + L.fsWhy[r.reason]); }
       else line('', L.fsTapHint);
     }
     scoreLine();
@@ -729,13 +795,196 @@ function mountSafeMoves(boardEl, panel) {
   return { unmount() {}, relabel() { labels(); status(); } };
 }
 
+// ---------- Drill: Capture path ----------
+// Your piece and n enemy pawns. Capture all of them, one per move: every move must capture. Pick a route that strands the piece and
+// you lose (the solution is then shown). Nothing ever captures your piece: this trains seeing the path.
+function mountCapturePath(boardEl, panel) {
+  const PCS = ['random', 'N', 'B', 'R', 'Q', 'K'], CNT = ['random', 2, 3, 4, 5, 6, 7, 8];
+  let sp = store.get('cp:piece', 'N'), sc = store.get('cp:count', 'random'); if (!PCS.includes(sp)) sp = 'N'; if (!CNT.includes(sc)) sc = 'random';
+  let puz = null, cur = null, mask = 0, trail = [], phase = 'play', last = null, counted = false, memo = new Map();
+  const bar = mk('div', 'bar'), tp = mkSelect(bar, 'cpPiece', PCS), tc = mkSelect(bar, 'cpCount', CNT); tp.s.id = 'cpp'; tc.s.id = 'cpn'; tp.s.value = sp; tc.s.value = sc;
+  const say = mk('div', 'say'), prog = mk('div', 'prog'), retry = mk('button', 'second'), act = mk('button', 'primary'), score = mk('div', 'score');
+  retry.type = 'button'; retry.id = 'retry'; act.type = 'button'; act.id = 'act';
+  boardEl.replaceChildren(); panel.replaceChildren(bar, say, prog, retry, act, score);
+  const { sqs, at, clear } = buildBoard(boardEl, (x, y) => tap(x, y));
+  const full = () => (1 << puz.targets.length) - 1, ec = () => puz.mc === 'w' ? 'b' : 'w', cap = w => w.charAt(0).toUpperCase() + w.slice(1);
+  const rem = () => puz.targets.filter((p, i) => (mask >> i) & 1);
+  const names = ps => { const L = T[lang]; return ps.map(p => L.pn[p.t] + L.in + sqName(p.x, p.y)).join(', '); };
+  function labels() {
+    const L = T[lang]; tp.l.firstChild.nodeValue = L.cpPiece + ' '; tc.l.firstChild.nodeValue = L.cpCount + ' ';
+    tp.s.setAttribute('aria-label', L.cpPiece); tc.s.setAttribute('aria-label', L.cpCount);
+    [...tp.s.options].forEach(o => { o.textContent = o.value === 'random' ? L.fsRandom : cap(L.pn[o.value]); });
+    [...tc.s.options].forEach(o => { o.textContent = o.value === 'random' ? L.rnd : o.value; });
+    retry.textContent = L.cpRetry; act.textContent = L.again;
+  }
+  function render() {
+    clear(); puz.targets.forEach((p, i) => { if ((mask >> i) & 1) at(p.x, p.y).append(pieceEl(ec() + 'P')); });
+    if (phase === 'lost') {                                  // show the start and one full route
+      at(puz.start.x, puz.start.y).append(pieceEl(puz.mc + puz.t)); at(puz.start.x, puz.start.y).classList.add('me');
+      puz.sol.forEach((i, k) => { const p = puz.targets[i]; at(p.x, p.y).classList.add('real'); at(p.x, p.y).append(mk('span', 'n big', String(k + 1))); });
+      puz.targets.forEach((p, i) => { if (!((mask >> i) & 1)) at(p.x, p.y).append(pieceEl(ec() + 'P')); });
+    } else {
+      at(cur.x, cur.y).append(pieceEl(puz.mc + puz.t)); at(cur.x, cur.y).classList.add('me');
+      [puz.start].concat(trail).forEach((p, k, a) => { if (k < a.length - 1) at(p.x, p.y).append(mk('span', 'n big', k ? String(k) : 'S')); });
+    }
+    sqs.forEach(b => b.classList.toggle('ans', phase === 'play'));
+  }
+  function status() {
+    const L = T[lang], n = puz.targets.length; say.replaceChildren(); let t, c = 'msg';
+    if (!last) { t = L.cpTask; c += ' sm'; }
+    else if (last.kind === 'pick') { t = L.cpPick; c += ' sm'; }
+    else if (last.kind === 'cannot') { t = L.cpCannot(sqName(last.x, last.y)); c += ' no'; }
+    else if (last.kind === 'blocked') { t = L.cpBlocked(sqName(last.x, last.y), names([last.by])); c += ' no'; }
+    else if (last.kind === 'ok') { t = L.cpOk(sqName(last.x, last.y)); c += ' ok'; }
+    else if (last.kind === 'win') { t = L.cpWin; c += ' ok'; }
+    else { t = L.cpLost; c += ' no'; }
+    say.append(mk('div', c, t)); prog.textContent = L.cpProg(trail.length, n); prog.className = 'prog' + (phase === 'won' ? ' ok' : phase === 'lost' ? ' no' : '');
+    const v = store.get('cp:scores', { ok: 0, total: 0 }); score.textContent = v.total ? L.cpScore(v.ok, v.total) : '';
+  }
+  function record(won) { if (counted) return; counted = true; const v = store.get('cp:scores', { ok: 0, total: 0 }); v.total++; if (won) v.ok++; store.set('cp:scores', v); }
+  function tap(x, y) {
+    if (phase !== 'play') return;
+    const i = puz.targets.findIndex((p, j) => ((mask >> j) & 1) && p.x === x && p.y === y);
+    if (i < 0) { last = { kind: 'pick' }; status(); return; }
+    const m = ptCaps(puz.t, puz.mc, cur, puz.targets, mask).find(c => c.i === i);
+    if (!m) { const w = smWhy(puz.t, puz.mc, cur, rem(), x, y); last = w.why === 'blocked' ? { kind: 'blocked', x, y, by: w.by } : { kind: 'cannot', x, y }; status(); return; }
+    trail.push({ x, y }); cur = { x, y }; mask &= ~(1 << i);
+    if (!mask) { phase = 'won'; last = { kind: 'win' }; record(true); }
+    else if (!ptSolve(puz.t, puz.mc, cur, puz.targets, mask, memo)) { phase = 'lost'; last = { kind: 'lost' }; record(false); }
+    else last = { kind: 'ok', x, y };
+    render(); status();
+  }
+  function reset() { cur = puz.start; mask = full(); trail = []; phase = 'play'; last = null; memo = new Map(); render(); status(); }
+  function newPuzzle() { puz = genPT(sp === 'random' ? null : sp, sc === 'random' ? null : sc); counted = false; reset(); }
+  tp.s.onchange = () => { sp = tp.s.value; store.set('cp:piece', sp); newPuzzle(); };
+  tc.s.onchange = () => { sc = tc.s.value === 'random' ? 'random' : +tc.s.value; store.set('cp:count', sc); newPuzzle(); };
+  retry.onclick = reset; act.onclick = newPuzzle;
+  labels(); newPuzzle();
+  return { unmount() {}, relabel() { labels(); status(); } };
+}
+
+// ---------- Drill: King zone ----------
+// Our king with the squares around it highlighted, and enemy pieces. Mark every highlighted square that receives 2 or more attacks.
+function mountKingZone(boardEl, panel) {
+  const CNT = ['random', 2, 3, 4, 5, 6, 7, 8];
+  let sc = store.get('kz:count', 'random'); if (!CNT.includes(sc)) sc = 'random';
+  let puz = null, found = {}, errs = 0, over = false, last = null;
+  const bar = mk('div', 'bar'), tc = mkSelect(bar, 'kzRival', CNT); tc.s.id = 'kzn'; tc.s.value = sc;
+  const say = mk('div', 'say'), prog = mk('div', 'prog'), er = mk('div', 'prog'), show = mk('button', 'second'), act = mk('button', 'primary'), score = mk('div', 'score');
+  show.type = 'button'; show.id = 'reveal'; act.type = 'button'; act.id = 'act';
+  boardEl.replaceChildren(); panel.replaceChildren(bar, say, prog, er, show, act, score);
+  const { sqs, at, clear } = buildBoard(boardEl, (x, y) => tap(x, y));
+  const key = (x, y) => x + ',' + y, missing = () => puz.multi.filter(c => !found[key(c.x, c.y)]);
+  const names = ps => { const L = T[lang]; return ps.map(p => L.pn[p.t] + L.in + sqName(p.x, p.y)).join(', '); };
+  function labels() { const L = T[lang]; tc.l.firstChild.nodeValue = L.kzRival + ' '; tc.s.setAttribute('aria-label', L.kzRival); [...tc.s.options].forEach(o => { o.textContent = o.value === 'random' ? L.rnd : o.value; }); show.textContent = L.fkReveal; act.textContent = L.again; }
+  function say_() {
+    const L = T[lang]; say.replaceChildren(); let t, c = 'msg';
+    if (!last) { t = L.kzTask; c += ' sm'; }
+    else if (last.kind === 'ok') { t = L.kzOk(sqName(last.x, last.y), last.att.length, names(last.att)); c += ' ok'; }
+    else if (last.kind === 'few') { t = L.kzFew(sqName(last.x, last.y), last.att.length, names(last.att)); c += ' no'; }
+    else if (last.kind === 'out') { t = L.kzOut; c += ' sm'; }
+    else if (last.kind === 'done') { t = L.kzDone(errs); c += errs ? ' no' : ' ok'; }
+    else { t = L.kzGaveUp; c += ' sm'; }
+    say.append(mk('div', c, t));
+  }
+  function status() {
+    const L = T[lang], m = missing().length;
+    prog.textContent = over && !m ? '' : L.kzLeft(m); prog.className = 'prog'; er.textContent = errs ? L.kzErr(errs) : ''; er.className = 'prog' + (errs ? ' no' : '');
+    show.hidden = over; sqs.forEach(b => b.classList.toggle('ans', !over)); say_();
+    const v = store.get('kz:scores', { ok: 0, total: 0 }); score.textContent = v.total ? L.kzScore(v.ok, v.total) : '';
+  }
+  function finish(gaveUp) {
+    over = true; last = { kind: gaveUp ? 'gaveup' : 'done' };
+    const v = store.get('kz:scores', { ok: 0, total: 0 }); v.total++; if (!gaveUp && !errs) v.ok++; store.set('kz:scores', v);
+    puz.cand.forEach(c => { const b = at(c.x, c.y); b.classList.remove('cand'); if (!found[key(c.x, c.y)] && c.att.length >= 2) b.classList.add('miss'); if (!b.querySelector('.n')) b.append(mk('span', 'n big', String(c.att.length))); });
+    status();
+  }
+  function tap(x, y) {
+    if (over) return; sqs.forEach(b => b.classList.remove('bad', 'att'));
+    const c = puz.cand.find(q => q.x === x && q.y === y); if (!c) { last = { kind: 'out' }; status(); return; }
+    if (found[key(x, y)]) return;
+    if (c.att.length >= 2) {
+      found[key(x, y)] = 1; const b = at(x, y); b.classList.remove('cand'); b.classList.add('real'); b.append(mk('span', 'n big', String(c.att.length)));
+      last = { kind: 'ok', x, y, att: c.att }; if (!missing().length) { finish(false); return; }
+    } else { errs++; at(x, y).classList.add('bad'); c.att.forEach(p => at(p.x, p.y).classList.add('att')); last = { kind: 'few', x, y, att: c.att }; }
+    status();
+  }
+  function newPuzzle() {
+    puz = genKZ(sc === 'random' ? null : sc); found = {}; errs = 0; over = false; last = null; clear();
+    at(puz.king.x, puz.king.y).append(pieceEl(puz.mc + 'K')); puz.enemies.forEach(p => at(p.x, p.y).append(pieceEl(puz.ec + p.t)));
+    puz.cand.forEach(c => at(c.x, c.y).classList.add('cand')); status();
+  }
+  tc.s.onchange = () => { sc = tc.s.value === 'random' ? 'random' : +tc.s.value; store.set('kz:count', sc); newPuzzle(); };
+  show.onclick = () => { if (!over) finish(true); }; act.onclick = newPuzzle;
+  labels(); newPuzzle();
+  return { unmount() {}, relabel() { labels(); status(); } };
+}
+
+// ---------- Drill: Loose pieces ----------
+// A few pieces of each colour plus both kings. Mark every piece (kings excepted) that no friendly piece protects.
+function mountLoosePieces(boardEl, panel) {
+  const CNT = ['random', 2, 3, 4, 5];
+  let sc = store.get('lp:count', 'random'); if (!CNT.includes(sc)) sc = 'random';
+  let puz = null, found = {}, errs = 0, over = false, last = null;
+  const bar = mk('div', 'bar'), tc = mkSelect(bar, 'lpSide', CNT); tc.s.id = 'lpn'; tc.s.value = sc;
+  const say = mk('div', 'say'), prog = mk('div', 'prog'), er = mk('div', 'prog'), show = mk('button', 'second'), act = mk('button', 'primary'), score = mk('div', 'score');
+  show.type = 'button'; show.id = 'reveal'; act.type = 'button'; act.id = 'act';
+  boardEl.replaceChildren(); panel.replaceChildren(bar, say, prog, er, show, act, score);
+  const { sqs, at, clear } = buildBoard(boardEl, (x, y) => tap(x, y));
+  const key = (x, y) => x + ',' + y, missing = () => puz.loose.filter(a => !found[key(a.p.x, a.p.y)]);
+  const names = ps => { const L = T[lang]; return ps.map(p => L.pn[p.t] + L.in + sqName(p.x, p.y)).join(', '); };
+  function labels() { const L = T[lang]; tc.l.firstChild.nodeValue = L.lpSide + ' '; tc.s.setAttribute('aria-label', L.lpSide); [...tc.s.options].forEach(o => { o.textContent = o.value === 'random' ? L.rnd : o.value; }); show.textContent = L.fkReveal; act.textContent = L.again; }
+  function say_() {
+    const L = T[lang]; say.replaceChildren(); let t, c = 'msg';
+    if (!last) { t = L.lpTask; c += ' sm'; }
+    else if (last.kind === 'ok') { t = L.lpOk(sqName(last.x, last.y)); c += ' ok'; }
+    else if (last.kind === 'prot') { t = L.lpProt(sqName(last.x, last.y), names(last.def)); c += ' no'; }
+    else if (last.kind === 'king') { t = L.lpKing; c += ' sm'; }
+    else if (last.kind === 'done') { t = L.lpDone(errs); c += errs ? ' no' : ' ok'; }
+    else { t = L.lpGaveUp; c += ' sm'; }
+    say.append(mk('div', c, t));
+  }
+  function status() {
+    const L = T[lang], m = missing().length;
+    prog.textContent = over && !m ? '' : L.lpLeft(m); prog.className = 'prog'; er.textContent = errs ? L.lpErr(errs) : ''; er.className = 'prog' + (errs ? ' no' : '');
+    show.hidden = over; sqs.forEach(b => b.classList.toggle('ans', !over)); say_();
+    const v = store.get('lp:scores', { ok: 0, total: 0 }); score.textContent = v.total ? L.lpScore(v.ok, v.total) : '';
+  }
+  function finish(gaveUp) {
+    over = true; last = { kind: gaveUp ? 'gaveup' : 'done' };
+    const v = store.get('lp:scores', { ok: 0, total: 0 }); v.total++; if (!gaveUp && !errs) v.ok++; store.set('lp:scores', v);
+    if (gaveUp) missing().forEach(a => at(a.p.x, a.p.y).classList.add('miss'));
+    status();
+  }
+  function tap(x, y) {
+    if (over) return; sqs.forEach(b => b.classList.remove('bad', 'att'));
+    const a = puz.info.find(q => q.p.x === x && q.p.y === y); if (!a) return;
+    if (a.p.t === 'K') { last = { kind: 'king' }; status(); return; }
+    if (found[key(x, y)]) return;
+    if (!a.def.length) { found[key(x, y)] = 1; at(x, y).classList.add('real'); last = { kind: 'ok', x, y }; if (!missing().length) { finish(false); return; } }
+    else { errs++; at(x, y).classList.add('bad'); a.def.forEach(p => at(p.x, p.y).classList.add('att')); last = { kind: 'prot', x, y, def: a.def }; }
+    status();
+  }
+  function newPuzzle() {
+    puz = genLP(sc === 'random' ? null : sc); found = {}; errs = 0; over = false; last = null; clear();
+    puz.pieces.forEach(p => at(p.x, p.y).append(pieceEl(p.c + p.t))); status();
+  }
+  tc.s.onchange = () => { sc = tc.s.value === 'random' ? 'random' : +tc.s.value; store.set('lp:count', sc); newPuzzle(); };
+  show.onclick = () => { if (!over) finish(true); }; act.onclick = newPuzzle;
+  labels(); newPuzzle();
+  return { unmount() {}, relabel() { labels(); status(); } };
+}
+
 // ---------- Drill registry: every new drill is added here (add its name to T.es.names and T.en.names) ----------
 const DRILLS = [
   { id: 'invisible-knight', mount: mountInvisibleKnight },
   { id: 'knight-forks', mount: mountKnightForks },
   { id: 'safe-square', mount: mountSafeSquare },
   { id: 'fork-skewer', mount: mountForkSkewer },
-  { id: 'safe-moves', mount: mountSafeMoves }
+  { id: 'safe-moves', mount: mountSafeMoves },
+  { id: 'capture-path', mount: mountCapturePath },
+  { id: 'king-zone', mount: mountKingZone },
+  { id: 'loose-pieces', mount: mountLoosePieces }
 ];
 let cur = null;
 const sel = $('#drill');
