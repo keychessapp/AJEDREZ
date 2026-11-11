@@ -1,8 +1,8 @@
 
 const T={
- es:{play:'Jugar',puzzles:'Puzzles',library:'Biblioteca',learn:'Aprender',drills:'Drills',soon:'pronto',login:'Entrar con Lichess',logout:'Salir',time:'Elige el tiempo',rated:'Partida con rating',go:'Jugar ahora',cancel:'Cancelar búsqueda',hint:'Juegas contra personas reales de Lichess, con tu cuenta y tu rating.',other:'EN',botlbl:'Probar contra un bot',bot:'Empezar',search:'Buscando rival…',fail:'No se pudo: ',resign:'Rendirse',abort:'Abortar',draw:'Tablas',again:'Revancha',mute:'Silenciar chat del rival',chatph:'Escribe un mensaje',won:'Ganaste',lost:'Perdiste',drew:'Tablas',need:'Sal y vuelve a entrar para dar el permiso nuevo.',
+ es:{play:'Jugar',variant:'Variante',vstd:'Clásica',v960:'Chess960',v960hint:'En Chess960 se enroca arrastrando el rey sobre su torre.',puzzles:'Puzzles',library:'Biblioteca',learn:'Aprender',drills:'Drills',soon:'pronto',login:'Entrar con Lichess',logout:'Salir',time:'Elige el tiempo',rated:'Partida con rating',go:'Jugar ahora',cancel:'Cancelar búsqueda',hint:'Juegas contra personas reales de Lichess, con tu cuenta y tu rating.',other:'EN',botlbl:'Probar contra un bot',bot:'Empezar',search:'Buscando rival…',fail:'No se pudo: ',resign:'Rendirse',abort:'Abortar',draw:'Tablas',again:'Revancha',mute:'Silenciar chat del rival',chatph:'Escribe un mensaje',won:'Ganaste',lost:'Perdiste',drew:'Tablas',need:'Sal y vuelve a entrar para dar el permiso nuevo.',
   why:{mate:'jaque mate',resign:'abandono',outoftime:'tiempo',timeout:'tiempo',draw:'acuerdo',stalemate:'ahogado',aborted:'partida abortada',noStart:'sin comenzar'}},
- en:{play:'Play',puzzles:'Puzzles',library:'Library',learn:'Learn',drills:'Drills',soon:'soon',login:'Log in with Lichess',logout:'Log out',time:'Choose a time',rated:'Rated game',go:'Play now',cancel:'Cancel search',hint:'You play real Lichess players, with your account and rating.',other:'ES',botlbl:'Try a bot',bot:'Start',search:'Looking for an opponent…',fail:'Failed: ',resign:'Resign',abort:'Abort',draw:'Draw',again:'Rematch',mute:'Mute opponent chat',chatph:'Type a message',won:'You won',lost:'You lost',drew:'Draw',need:'Log out and back in to grant the new permission.',
+ en:{play:'Play',variant:'Variant',vstd:'Classical',v960:'Chess960',v960hint:'In Chess960 you castle by dragging the king onto its rook.',puzzles:'Puzzles',library:'Library',learn:'Learn',drills:'Drills',soon:'soon',login:'Log in with Lichess',logout:'Log out',time:'Choose a time',rated:'Rated game',go:'Play now',cancel:'Cancel search',hint:'You play real Lichess players, with your account and rating.',other:'ES',botlbl:'Try a bot',bot:'Start',search:'Looking for an opponent…',fail:'Failed: ',resign:'Resign',abort:'Abort',draw:'Draw',again:'Rematch',mute:'Mute opponent chat',chatph:'Type a message',won:'You won',lost:'You lost',drew:'Draw',need:'Log out and back in to grant the new permission.',
   why:{mate:'checkmate',resign:'resignation',outoftime:'time',timeout:'time',draw:'agreement',stalemate:'stalemate',aborted:'aborted',noStart:'not started'}}};
 let lang=localStorage.lang||'es',user=null,tc='10+0',G=null,seekAbort=null,cg;
 const $=s=>document.querySelector(s),API='https://lichess.org';
@@ -72,12 +72,17 @@ async function stream(p,on,opt={}){
   }catch(e){if(e.name!='AbortError')console.error(e)}
 }
 
+// variant: classical or Chess960 (saved on this device)
+let VAR=localStorage.evar=='chess960'?'chess960':'standard';
+function paintVariant(){$('#variant').value=VAR;$('#vhint').hidden=VAR!='chess960';
+  const bs=$('#bsel');[...bs.options].forEach(o=>{o.disabled=VAR=='chess960'&&!o.value.startsWith('ai')});if(bs.selectedOptions[0]&&bs.selectedOptions[0].disabled)bs.selectedIndex=[...bs.options].findIndex(o=>!o.disabled)}
+$('#variant').onchange=()=>{VAR=$('#variant').value=='chess960'?'chess960':'standard';try{localStorage.evar=VAR}catch(_){}paintVariant()};
 // find an opponent
 $('#go').onclick=async()=>{
   if(!user)return login();
   const[m,i]=tc.split('+');seekAbort=new AbortController();msg(T[lang].search);$('#go').hidden=true;$('#cancel').hidden=false;
   try{await fetch(API+'/api/board/seek',{method:'POST',signal:seekAbort.signal,headers:{...hdr(),'Content-Type':'application/x-www-form-urlencoded'},
-    body:new URLSearchParams({rated:$('#rated').checked,time:m,increment:i,color:'random'})})}catch(e){}
+    body:new URLSearchParams({rated:$('#rated').checked,time:m,increment:i,color:'random',variant:VAR})})}catch(e){}
   $('#go').hidden=false;$('#cancel').hidden=true;msg('');
 };
 $('#cancel').onclick=()=>seekAbort&&seekAbort.abort();
@@ -86,7 +91,7 @@ $('#cancel').onclick=()=>seekAbort&&seekAbort.abort();
 $('#bot').onclick=async()=>{
   if(!user)return login();
   const[m,i]=tc.split('+'),v=$('#bsel').value,c={'clock.limit':m*60,'clock.increment':+i};
-  const r=v.startsWith('ai')?await post('/api/challenge/ai',{level:v.slice(2),...c}):await post('/api/challenge/'+v,{rated:false,...c});
+  const r=v.startsWith('ai')?await post('/api/challenge/ai',{level:v.slice(2),variant:VAR,...c}):await post('/api/challenge/'+v,{rated:false,variant:VAR,...c});
   if(!r.ok){const t=await r.text();msg(r.status==401||r.status==403?T[lang].need:T[lang].fail+t.slice(0,120))}
 };
 
@@ -122,7 +127,8 @@ function openGame(id){
 function onGame(id,m){
   if(!G||G.id!=id)return;
   if(m.type=='gameFull'){
-    G.color=m.white.id==user.id?'white':'black';G.opp=G.color=='white'?m.black:m.white;G.clock=m.clock;G.rated=m.rated;G.init=m.initialFen;
+    G.color=m.white.id==user.id?'white':'black';G.opp=G.color=='white'?m.black:m.white;G.clock=m.clock;G.rated=m.rated;G.init=m.initialFen;G.c960=!!(m.variant&&m.variant.key=='chess960');
+    if(G.c960&&!G.lib){$('#ginfo').hidden=false;$('#ginfo').textContent='Chess960 · '+T[lang].v960hint}
     cg.set({orientation:G.color});$('#oppn').textContent=nm(G.opp);$('#myn').textContent=nm(G.color=='white'?m.white:m.black);apply(m.state);
   }else if(m.type=='gameState')apply(m);
   else if(m.type=='chatLine'){const mine=m.username==user.username;if(mine||!$('#mute').checked){
@@ -136,14 +142,14 @@ function apply(s){
     if(/[+#]/.test(ls))setTimeout(()=>sound(ls.includes('#')?'mate':'check'),70)}
   G.seen=true;G.n=sans.length;const over=!['created','started'].includes(s.status),mine=!over&&pos.turn==G.color;
   cg.set({fen:Chessops.makeFen(pos.toSetup()),turnColor:pos.turn,lastMove:last,check:pos.isCheck(),viewOnly:over,
-    movable:{free:false,color:G.color,dests:mine?Chessops.chessgroundDests(pos):new Map(),events:{after:onMove}}});
+    movable:{free:false,color:G.color,dests:mine?Chessops.chessgroundDests(pos,{chess960:!!G.c960}):new Map(),events:{after:onMove}}});
   $('#moves').innerHTML=sans.map((x,i)=>{const k=i+odd,n=(k>>1)+1;return k%2?(i?x:`<b>${n}…</b> ${x}`):`<b>${n}.</b> ${x}`}).join(' ');$('#moves').scrollTop=1e5;
   G.t={white:s.wtime,black:s.btime};G.at=Date.now();G.turn=over?null:pos.turn;clocks();paint();
   if(over){if(!first&&!G.over&&s.status!='mate')sound('end');if(G.lib&&!G.over&&s.winner==G.color)libSolved(G.lib);G.over=true;if(s.status=='mate'){clearBadge();badge(pos)}
     const L=T[lang];$('#res').textContent=(s.winner?(s.winner==G.color?L.won:L.lost):L.drew)+' · '+(L.why[s.status]||s.status);
     $('#resign').hidden=$('#draw').hidden=true;$('#again').hidden=false}
 }
-function onMove(o,d,m){sound(m&&m.captured?'cap':'move');G.own=G.n+1;let u=o+d;const p=cg.state.pieces.get(d);if(p&&p.role=='pawn'&&(d[1]=='8'||d[1]=='1'))u+='q';post(`/api/board/game/${G.id}/move/${u}`)}
+function onMove(o,d,m){sound(m&&m.captured&&m.captured.color!==G.color?'cap':'move');G.own=G.n+1;let u=o+d;const p=cg.state.pieces.get(d);if(p&&p.role=='pawn'&&(d[1]=='8'||d[1]=='1'))u+='q';post(`/api/board/game/${G.id}/move/${u}`)}
 function clocks(){
   if(!G||!G.t)return;if(!G.clock){$('#mc').textContent=$('#oc').textContent='--:--';return}const el=Date.now()-G.at,f=ms=>{const s=Math.ceil(Math.max(0,ms)/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
   const t=c=>G.t[c]-(G.turn==c&&G.n>1?el:0),o=G.color=='white'?'black':'white';
@@ -154,7 +160,7 @@ $('#resign').onclick=()=>post(`/api/board/game/${G.id}/${G.n<2?'abort':'resign'}
 $('#draw').onclick=()=>post(`/api/board/game/${G.id}/draw/yes`);
 $('#again').onclick=()=>{if(G.lib){libPlay(G.lib);return}
   const c={'clock.limit':G.clock.initial/1000,'clock.increment':G.clock.increment/1000},o=G.opp;
-  if(o.aiLevel)post('/api/challenge/ai',{level:o.aiLevel,...c});else post('/api/challenge/'+o.id,{rated:G.rated,...c});show('play')};
+  const vv=G.c960?'chess960':'standard';if(o.aiLevel)post('/api/challenge/ai',{level:o.aiLevel,variant:vv,...c});else post('/api/challenge/'+o.id,{rated:G.rated,variant:vv,...c});show('play')};
 const send=()=>{const t=$('#ci').value.trim();if(t&&G){post(`/api/board/game/${G.id}/chat`,{room:'player',text:t});$('#ci').value=''}};
 $('#cs').onclick=send;$('#ci').onkeydown=e=>{if(e.key=='Enter')send()};
 
@@ -162,7 +168,7 @@ $('#cs').onclick=send;$('#ci').onkeydown=e=>{if(e.key=='Enter')send()};
 // ===== Puzzles (sets, cycles; progress stays in this browser) =====
 const TH={mix:['Mezcla','Mix'],mateIn1:['Mate en 1','Mate in 1'],mateIn2:['Mate en 2','Mate in 2'],mateIn3:['Mate en 3','Mate in 3'],fork:['Horquilla','Fork'],pin:['Clavada','Pin'],discoveredAttack:['Ataque descubierto','Discovered attack'],hangingPiece:['Pieza colgada','Hanging piece'],backRankMate:['Mate de pasillo','Back rank mate'],sacrifice:['Sacrificio','Sacrifice'],endgame:['Final','Endgame']};
 const LV={easiest:['Muy fácil','Easiest'],easier:['Fácil','Easier'],normal:['Normal','Normal'],harder:['Difícil','Harder'],hardest:['Muy difícil','Hardest']};
-const Z={new:['Nuevo set','New set'],cont:['Continuar','Continue'],theme:['Tema','Theme'],level:['Dificultad','Difficulty'],size:['Puzzles','Puzzles'],cycles:['Ciclos','Cycles'],create:['Crear set','Create set'],loading:['Cargando…','Loading…'],cyc:['Ciclo','Cycle'],rating:['Rating','Rating'],white:['Juegas con blancas','You play white'],black:['Juegas con negras','You play black'],good:['Correcto','Correct'],bad:['Error. Esta era la jugada','Wrong. This was the move'],skip:['Saltar','Skip'],exit:['Salir','Leave'],delc:['¿Eliminar este set?','Delete this set?'],cdone:['Ciclo terminado','Cycle finished'],time:['Tiempo','Time'],errs:['Errores','Errors'],acc:['Precisión','Accuracy'],next:['Siguiente ciclo','Next cycle'],nextp:['Siguiente','Next'],auto:['Abrir el siguiente automáticamente','Open the next one automatically'],sdone:['Set terminado','Set finished'],arch:['Archivo','Archive'],none:['Aún no hay sets terminados','No finished sets yet'],empty:['No llegaron puzzles. Prueba otro tema.','No puzzles came back. Try another theme.']};
+const Z={rel:['Puzzle recargado','Puzzle reloaded'],new:['Nuevo set','New set'],cont:['Continuar','Continue'],theme:['Tema','Theme'],level:['Dificultad','Difficulty'],size:['Puzzles','Puzzles'],cycles:['Ciclos','Cycles'],create:['Crear set','Create set'],loading:['Cargando…','Loading…'],cyc:['Ciclo','Cycle'],rating:['Rating','Rating'],white:['Juegas con blancas','You play white'],black:['Juegas con negras','You play black'],good:['Correcto','Correct'],bad:['Error. Esta era la jugada','Wrong. This was the move'],skip:['Saltar','Skip'],exit:['Salir','Leave'],delc:['¿Eliminar este set?','Delete this set?'],cdone:['Ciclo terminado','Cycle finished'],time:['Tiempo','Time'],errs:['Errores','Errors'],acc:['Precisión','Accuracy'],next:['Siguiente ciclo','Next cycle'],nextp:['Siguiente','Next'],auto:['Abrir el siguiente automáticamente','Open the next one automatically'],sdone:['Set terminado','Set finished'],arch:['Archivo','Archive'],none:['Aún no hay sets terminados','No finished sets yet'],empty:['No llegaron puzzles. Prueba otro tema.','No puzzles came back. Try another theme.']};
 let SETS=[],SET=null,PZ=null,ARCH=[],AUTO=localStorage.eauto!=='0';
 try{SETS=JSON.parse(localStorage.esets||'[]');ARCH=JSON.parse(localStorage.earch||'[]').filter(a=>!a.inc);
   const old=JSON.parse(localStorage.eset||'null');if(old){SETS.push(old);localStorage.removeItem('eset')}}catch(e){}
@@ -202,7 +208,7 @@ async function create(){
   }catch(e){pm.textContent=T[lang].fail+e.message}
 }
 function home(){
-  PZ=null;SET=null;resetBoard();
+  clearTimeout(PT);clearTimeout(RT);PZ=null;SET=null;resetBoard();
   const list=SETS.map(s=>{const a=acc(s);return `<div class="set" data-act="open" data-id="${s.id}"><div><b>${esc(lg(TH[s.name]))} · ${esc(lg(LV[s.level]))}</b><small>${lg(Z.cyc)} ${s.cycle}/${s.cycles} · ${s.pause?lg(Z.cdone):(s.size-s.q.length)+'/'+s.size} · ${lg(Z.acc)} ${a==null?'—':a+'%'}</small></div><button class="x" data-act="del" data-id="${s.id}">✕</button></div>`}).join('');
   $('#pzv').innerHTML=(SETS.length?`<h2>${lg(Z.cont)}</h2>${list}<hr>`:'')+
    `<h2>${lg(Z.new)}</h2><label class="mute">${lg(Z.theme)}</label><select id="pth">${opts(TH)}</select>
@@ -227,28 +233,30 @@ function info(f,btn){
     <label class="sw"><input type="checkbox" id="pauto"${AUTO?' checked':''}><span>${lg(Z.auto)}</span></label>
     <div class="row"><button data-act="skip">${lg(Z.skip)}</button><button data-act="exit">${lg(Z.exit)}</button></div>`;
 }
+let PT=null,RT=null;const later=(f,ms)=>{clearTimeout(PT);PT=setTimeout(f,ms)};
 function startPuz(){
+  clearTimeout(RT);clearTimeout(PT);
   if($('#puzp').hidden)return;
   const s=SET;if(!s)return;if(!s.q.length)return endCycle();
   try{
-    const p=s.puz[s.q[0]],pos=load(p.fen);PZ={p,pos,k:0,side:pos.turn,busy:false,wait:false};s.lt=Date.now();cg.setShapes([]);
+    const p=s.puz[s.q[0]],pos=load(p.fen);PZ={p,pos,k:0,side:pos.turn,busy:false,wait:false,busyAt:0};s.lt=Date.now();cg.setShapes([]);
     cg.set({fen:p.fen,orientation:pos.turn,turnColor:pos.turn,lastMove:p.last,check:pos.isCheck(),viewOnly:false,premovable:{enabled:false},
       movable:{free:false,color:pos.turn,dests:Chessops.chessgroundDests(pos),events:{after:onPuz}}});
     info();
-  }catch(e){console.error(e);s.q.shift();save();setTimeout(startPuz,300)}
+  }catch(e){console.error(e);s.q.shift();save();later(startPuz,300)}
 }
 function resync(){
   cg.set({fen:Chessops.makeFen(PZ.pos.toSetup()),turnColor:PZ.side,check:PZ.pos.isCheck(),viewOnly:false,
     movable:{free:false,color:PZ.side,dests:Chessops.chessgroundDests(PZ.pos),events:{after:onPuz}}});
 }
 function miss(){
-  const s=SET,want=PZ.p.sol[PZ.k];PZ.busy=true;s.err++;if(!s.mi.includes(PZ.p.id))s.mi.push(PZ.p.id);
+  const s=SET,want=PZ.p.sol[PZ.k];PZ.busy=true;PZ.busyAt=Date.now();s.err++;if(!s.mi.includes(PZ.p.id))s.mi.push(PZ.p.id);
   s.cms+=Math.min(Date.now()-s.lt,120000);sound('bad');
   cg.set({fen:Chessops.makeFen(PZ.pos.toSetup()),turnColor:PZ.side,lastMove:undefined,check:PZ.pos.isCheck(),viewOnly:true});
   if(want)cg.setShapes([{orig:want.slice(0,2),dest:want.slice(2,4),brush:'green'}]);
   s.q.push(s.q.shift());save();
   const f=`<span style="color:#e57373">${lg(Z.bad)}</span>`;
-  if(AUTO){info(f);setTimeout(startPuz,1800)}else{PZ.wait=true;info(f,true)}
+  if(AUTO){info(f);later(startPuz,1800)}else{PZ.wait=true;info(f,true)}
 }
 function onPuz(o,d,m){
   if(!PZ||PZ.busy)return;
@@ -261,9 +269,9 @@ function onPuz(o,d,m){
     if(Chessops.makeFen(t.toSetup())==Chessops.makeFen(w.toSetup())||t.isCheckmate()){
       PZ.pos=t;PZ.k++;sound(m&&m.captured?'cap':'move');
       if(t.isCheckmate()||PZ.k>=p.sol.length)return solved();
-      PZ.busy=true;
-      setTimeout(()=>{
-        if(!PZ||$('#puzp').hidden)return;let fin=false;
+      PZ.busy=true;PZ.busyAt=Date.now();const pz=PZ;
+      RT=setTimeout(()=>{
+        if(!PZ||PZ!==pz||$('#puzp').hidden)return;let fin=false;
         try{const r=Chessops.parseUci(p.sol[PZ.k]),cp=PZ.pos.board.get(r.to)!==undefined;PZ.pos.play(r);PZ.k++;sound(cp?'cap':'move');
           cg.set({fen:Chessops.makeFen(PZ.pos.toSetup()),turnColor:PZ.side,lastMove:[sqn(r.from),sqn(r.to)],check:PZ.pos.isCheck(),viewOnly:false,
             movable:{free:false,color:PZ.side,dests:Chessops.chessgroundDests(PZ.pos),events:{after:onPuz}}});fin=PZ.k>=p.sol.length;
@@ -274,9 +282,9 @@ function onPuz(o,d,m){
   }catch(e){console.error(e);try{resync();info(`<span style="color:#e57373">${esc(e.message)}</span>`)}catch(_){}}
 }
 function solved(){
-  const s=SET;PZ.busy=true;s.cms+=Math.min(Date.now()-s.lt,120000);s.q.shift();save();sound('ok');
+  const s=SET;PZ.busy=true;PZ.busyAt=Date.now();s.cms+=Math.min(Date.now()-s.lt,120000);s.q.shift();save();sound('ok');
   const f=`<span style="color:#81c784">${lg(Z.good)}</span>`;
-  if(AUTO){info(f);setTimeout(startPuz,800)}else{PZ.wait=true;info(f,true)}
+  if(AUTO){info(f);later(startPuz,800)}else{PZ.wait=true;info(f,true)}
 }
 function endCycle(){
   const s=SET;s.res.push({c:s.cycle,ms:s.cms,err:s.err,acc:Math.round((s.size-s.mi.length)/s.size*100)});
@@ -292,6 +300,14 @@ $('#pzv').onclick=e=>{const b=e.target.closest('[data-act]');if(!b)return;const 
   else if(a=='skip'){if(PZ&&!PZ.busy)miss()}
   else if(a=='nextp'){if(PZ&&PZ.wait){PZ.wait=false;startPuz()}}};
 $('#pzv').onchange=e=>{if(e.target.id=='pauto'){AUTO=e.target.checked;try{localStorage.eauto=AUTO?'1':'0'}catch(_){}}};
+
+// watchdog: if the puzzle board stays locked for no reason (a lost timer, an odd position), unlock it instead of leaving it frozen
+let lockedFor=0;
+setInterval(()=>{
+  if($('#puzp').hidden||!PZ||!SET||PZ.wait){lockedFor=0;return}
+  if(PZ.busy&&Date.now()-PZ.busyAt>5000){console.warn('puzzle watchdog: busy too long, reloading the puzzle');startPuz();return}
+  if(!PZ.busy&&cg.state.viewOnly){if(++lockedFor>=3){lockedFor=0;console.warn('puzzle watchdog: board was locked');try{resync()}catch(e){startPuz()}}}else lockedFor=0;
+},1000);
 
 // ===== Biblioteca: books in biblioteca/*.txt, each position playable against Stockfish (Lichess AI level 8) =====
 const BOOKS=[{id:'rockwell-1890',file:'biblioteca/rockwell-1890.txt'}];
@@ -340,7 +356,7 @@ async function libPlay(l){if(!user){const m=$('#lmsg');if(m)m.textContent=bz('lo
   const pos=load(l.fen);LIBGAME=l;
   const r=await post('/api/challenge/ai',{level:8,variant:'fromPosition',fen:l.fen,color:pos.turn});
   if(!r.ok){LIBGAME=null;const t=await r.text(),m=$('#lmsg')||$('#res');m.textContent=r.status==401||r.status==403?T[lang].need:T[lang].fail+t.slice(0,120)}}
-paint();
+paint();paintVariant();
 finish().then(me).then(u=>{user=u;paint();
   if(u)stream('/api/stream/event',ev=>{if(ev.type=='gameStart')openGame(ev.game.gameId||ev.game.id)})});
 if(location.hash=='#puzzles')show('puz');

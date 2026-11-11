@@ -1,8 +1,8 @@
 // ---------- Language (shared with Enroque: same localStorage key, Spanish by default) ----------
 const T = {
   es: {
-    login: 'Entrar con Lichess', logged: '✓ Lichess', play: 'Jugar', puzzles: 'Puzzles', drills: 'Drills', library: 'Biblioteca', learn: 'Aprender', soon: 'pronto', other: 'EN',
-    names: { 'invisible-knight': 'Caballo invisible', 'knight-forks': 'Forks de caballo', 'safe-square': 'Casilla segura', 'fork-skewer': 'Fork o skewer', 'safe-moves': 'Movimientos seguros', 'capture-path': 'Ruta de capturas', 'king-zone': 'Zona del rey', 'loose-pieces': 'Piezas colgadas' }, aria: 'Drill',
+    login: 'Entrar con Lichess', logged: '✓ Lichess', nextDrill: 'Siguiente', play: 'Jugar', puzzles: 'Puzzles', drills: 'Drills', library: 'Biblioteca', learn: 'Aprender', soon: 'pronto', other: 'EN',
+    names: { 'invisible-knight': 'Caballo invisible', 'knight-forks': 'Forks de caballo', 'safe-square': 'Casilla segura', 'safe-square-all': 'Casilla segura: todas', 'fork-skewer': 'Fork o skewer', 'safe-moves': 'Movimientos seguros', 'capture-path': 'Ruta de capturas', 'king-zone': 'Zona del rey', 'loose-pieces': 'Piezas colgadas' }, aria: 'Drill',
     level: 'Nivel', notation: 'Notación', show: 'Mostrar', jump: 'salto', jumps: 'saltos',
     arrows: 'Flechas ↑↑→', words: 'Palabras', clock: 'Reloj', clockhard: 'Reloj difícil', step: 'Paso a paso', seq: 'Secuencia',
     remember: 'Recuerda dónde está el caballo', start: 'Empezar', next: 'Siguiente', answer: 'Responder',
@@ -44,14 +44,16 @@ const T = {
     fsWin: (sq, k, txt, req) => sq + ': ' + k + ', ' + txt + '. La casilla es segura.' + (req ? '' : ' (extra, no era obligatoria)'),
     fsWhy: { none: 'no ataca ni al rey ni a la pieza', onlyK: 'solo ataca al rey', onlyM: 'solo ataca a la pieza', byK: 'el rey la captura', byM: 'la pieza rival la captura' },
     fsScore: (a, b) => 'Perfectas: ' + a + ' de ' + b,
+    sfaOver: (l, n) => 'Nivel ' + l + ' con ' + n + (n === 1 ? ' acierto' : ' aciertos') + '. Verde: marcadas. Amarillo: las que faltaban.',
+    sfaTask: 'Marca TODAS las casillas que ninguna pieza ataca antes de que se acabe el tiempo. Un error y termina.', sfaMarked: (a, b) => 'Marcadas: ' + a + ' de ' + b, sfaMissed: n => 'Faltaban ' + n + (n === 1 ? ' casilla' : ' casillas'),
     sfTask: 'Toca una casilla vacía que no esté atacada por ninguna pieza antes de que se acabe el tiempo.', sfStart: 'Empezar', sfEnd: 'Terminar', sfAgain: 'Jugar otra vez',
     sfLevel: l => 'Nivel ' + l, sfMax: 'máximo', sfHits: n => 'Aciertos: ' + n, sfBest: (l, n) => n ? 'Récord: ' + n + ' aciertos (nivel ' + l + ')' : '',
     sfTime: 'Se acabó el tiempo', sfAtt: (sq, list) => sq + ' está atacada por ' + list, sfExit: 'Terminaste',
     sfOver: (l, n) => 'Nivel ' + l + ' con ' + n + (n === 1 ? ' acierto' : ' aciertos') + '. En verde, las casillas seguras.', score: (l, a, b) => 'Nivel ' + l + ': ' + a + ' de ' + b + ' correctas'
   },
   en: {
-    login: 'Log in with Lichess', logged: '✓ Lichess', play: 'Play', puzzles: 'Puzzles', drills: 'Drills', library: 'Library', learn: 'Learn', soon: 'soon', other: 'ES',
-    names: { 'invisible-knight': 'Invisible Knight', 'knight-forks': 'Knight forks', 'safe-square': 'Safe Square Survivor', 'fork-skewer': 'Fork or skewer', 'safe-moves': 'Safe moves', 'capture-path': 'Capture path', 'king-zone': 'King zone', 'loose-pieces': 'Loose pieces' }, aria: 'Drill',
+    login: 'Log in with Lichess', logged: '✓ Lichess', nextDrill: 'Next', play: 'Play', puzzles: 'Puzzles', drills: 'Drills', library: 'Library', learn: 'Learn', soon: 'soon', other: 'ES',
+    names: { 'invisible-knight': 'Invisible Knight', 'knight-forks': 'Knight forks', 'safe-square': 'Safe Square Survivor', 'safe-square-all': 'Safe Square Survivor: Full', 'fork-skewer': 'Fork or skewer', 'safe-moves': 'Safe moves', 'capture-path': 'Capture path', 'king-zone': 'King zone', 'loose-pieces': 'Loose pieces' }, aria: 'Drill',
     level: 'Level', notation: 'Notation', show: 'Show', jump: 'jump', jumps: 'jumps',
     arrows: 'Arrows ↑↑→', words: 'Words', clock: 'Clock', clockhard: 'Clock hard', step: 'Step by step', seq: 'Sequence',
     remember: 'Remember where the knight is', start: 'Start', next: 'Next', answer: 'Answer',
@@ -93,6 +95,8 @@ const T = {
     fsWin: (sq, k, txt, req) => sq + ': ' + k + ', ' + txt + '. The square is safe.' + (req ? '' : ' (bonus, not required)'),
     fsWhy: { none: 'attacks neither the king nor the piece', onlyK: 'attacks only the king', onlyM: 'attacks only the piece', byK: 'the king captures it', byM: 'the enemy piece captures it' },
     fsScore: (a, b) => 'Perfect: ' + a + ' of ' + b,
+    sfaOver: (l, n) => 'Level ' + l + ' with ' + n + ' correct. Green: marked. Yellow: the ones you missed.',
+    sfaTask: 'Mark ALL the squares that no piece attacks before time runs out. One mistake ends the run.', sfaMarked: (a, b) => 'Marked: ' + a + ' of ' + b, sfaMissed: n => n + (n === 1 ? ' square missed' : ' squares missed'),
     sfTask: 'Tap an empty square that no piece attacks before time runs out.', sfStart: 'Start', sfEnd: 'Finish', sfAgain: 'Play again',
     sfLevel: l => 'Level ' + l, sfMax: 'max', sfHits: n => 'Correct: ' + n, sfBest: (l, n) => n ? 'Best: ' + n + ' correct (level ' + l + ')' : '',
     sfTime: 'Time is up', sfAtt: (sq, list) => sq + ' is attacked by ' + list, sfExit: 'You finished',
@@ -316,7 +320,7 @@ function ptSolve(t, mc, pos, targets, mask, memo) {   // an order of target inde
   memo.set(key, res); return res;
 }
 function genPT(tSel, nSel, rnd) {
-  rnd = rnd || Math.random; const kinds = 'NNBRQK', t = tSel || kinds[Math.floor(rnd() * kinds.length)], n = nSel || 2 + Math.floor(rnd() * 7), mc = rnd() < 0.5 ? 'w' : 'b';
+  rnd = rnd || Math.random; const kinds = 'NNBRQ', t = tSel || kinds[Math.floor(rnd() * kinds.length)], n = nSel || 2 + Math.floor(rnd() * 7), mc = rnd() < 0.5 ? 'w' : 'b';
   let last = null;
   for (let tries = 0; tries < 3000; tries++) {
     const start = { x: Math.floor(rnd() * 8), y: Math.floor(rnd() * 8) }, used = {}, targets = []; used[fsKey(start.x, start.y)] = 1; let cur = start, ok = true;
@@ -393,6 +397,29 @@ function genLP(kSel, rnd) {
   }
   return null;
 }
+
+// Safe Square Survivor (full): same idea, but you must mark EVERY safe square. Many pieces, a handful of safe squares, a clock that
+// grows with the number of squares to find. One wrong mark ends the run.
+const SFA = [
+  { n: 8, pool: 'QRBN', lo: 5, hi: 8 }, { n: 9, pool: 'QRBN', lo: 5, hi: 8 }, { n: 9, pool: 'QRBNP', lo: 4, hi: 7 }, { n: 10, pool: 'QRBNP', lo: 4, hi: 6 },
+  { n: 10, pool: 'QRRBBNPP', lo: 3, hi: 6 }, { n: 11, pool: 'QRRBBNPP', lo: 3, hi: 5 }, { n: 11, pool: 'QRRBBNPP', lo: 2, hi: 5 }, { n: 12, pool: 'QRRBBNPP', lo: 2, hi: 4 },
+  { n: 13, pool: 'QRRBBNPP', lo: 2, hi: 3 }, { n: 14, pool: 'QRRBBNPP', lo: 1, hi: 3 }
+];
+const sfaTime = (l, k) => Math.round(Math.max(15, Math.min(40, 10 + 3 * k)) * (l <= 5 ? 1 : l <= 8 ? 0.85 : 0.7));
+function genSFA(level, rnd) {
+  rnd = rnd || Math.random; const c = SFA[Math.min(level, SF_MAX) - 1]; let best = null, bd = 1e9;
+  for (let tries = 0; tries < 12000; tries++) {
+    const types = []; if (level >= 5 && rnd() < 0.5) types.push('K');
+    while (types.length < c.n) types.push(c.pool[Math.floor(rnd() * c.pool.length)]);
+    if (types.filter(t => t === 'Q').length > (level <= 4 ? 2 : 3)) continue;     // not a board full of queens
+    const used = {}, color = rnd() < 0.5 ? 'w' : 'b';
+    const pieces = types.map(t => { let x, y; do { x = Math.floor(rnd() * 8); y = t === 'P' ? 1 + Math.floor(rnd() * 6) : Math.floor(rnd() * 8); } while (used[fsKey(x, y)]); used[fsKey(x, y)] = 1; return { t, x, y }; });
+    const safe = safeSquares(pieces, color), k = safe.length; if (!k) continue;
+    if (k >= c.lo && k <= c.hi) return { pieces, color, safe };
+    const d = k < c.lo ? c.lo - k : k - c.hi; if (d < bd) { bd = d; best = { pieces, color, safe }; }
+  }
+  return best;
+}
 const sqName = (x, y) => 'abcdefgh'[x] + (y + 1);
 // PURE-END
 
@@ -402,6 +429,27 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem('drills:' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('drills:' + k, JSON.stringify(v)); } catch (e) {} }
 };
+
+// ---------- Sounds: the same synthesized set as Enroque (nothing to download) ----------
+let ac, soundOn = store.get('sound', true) !== false;
+function tone(f, t, d, v, ty = 'sine') { const o = ac.createOscillator(), g = ac.createGain(); o.type = ty; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.6, t + d); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.001, t + d); o.connect(g).connect(ac.destination); o.start(t); o.stop(t + d); }
+function knock(v, fr) {
+  const n = ac.sampleRate * 0.035 | 0, b = ac.createBuffer(1, n, ac.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.16));
+  const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = b; f.type = 'bandpass'; f.frequency.value = fr; f.Q.value = 1.1; g.gain.value = v; s.connect(f).connect(g).connect(ac.destination); s.start();
+}
+function sound(k) {
+  if (!soundOn) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)(); ac.resume(); const t = ac.currentTime;
+    if (k === 'move') { knock(0.8, 1700); tone(190, t, 0.09, 0.22); }
+    else if (k === 'cap') { knock(1.2, 1200); knock(0.6, 2600); tone(140, t, 0.12, 0.3); }
+    else if (k === 'end') { tone(440, t, 0.4, 0.08); tone(330, t + 0.15, 0.6, 0.08); }
+    else if (k === 'ok') { tone(660, t, 0.12, 0.06); tone(880, t + 0.08, 0.22, 0.05, 'triangle'); }       // a little quieter than in the game
+    else if (k === 'bad') tone(200, t, 0.24, 0.09, 'triangle');
+  } catch (e) {}
+}
+const good = cap => { sound(cap ? 'cap' : 'move'); setTimeout(() => sound('ok'), 90); };    // a right answer: the piece sound, then a soft chime
+const wrong = () => sound('bad');
 
 // ---------- Shared: the 8x8 board (white at the bottom) and Enroque's pieces ----------
 const pieceEl = code => mk('span', 'p ' + code);     // code like 'wN', 'bQ'
@@ -506,12 +554,13 @@ function mountInvisibleKnight(boardEl, panel) {
   }
   function answer(x, y) {
     if (phase !== 'answer') return;
-    puz.ok = x === puz.x && y === puz.y; puz.gx = x; puz.gy = y; phase = 'result';
+    puz.ok = x === puz.x && y === puz.y; puz.gx = x; puz.gy = y; phase = 'result'; sound(puz.ok ? 'ok' : 'bad');
     const s = store.get('ik:scores', {}); const v = s[level] || { ok: 0, total: 0 }; v.total++; if (puz.ok) v.ok++; s[level] = v; store.set('ik:scores', s);
     renderResult();
   }
   const redraw = () => phase === 'result' ? renderResult() : render();
   act.onclick = () => {
+    if (phase === 'show' || phase === 'jumps') sound('move');
     if (phase === 'show') { phase = show === 'seq' ? 'answer' : 'jumps'; i = 0; render(); }
     else if (phase === 'jumps') { if (i < puz.steps.length - 1) i++; else phase = 'answer'; render(); }
     else if (phase === 'result') newPuzzle();
@@ -574,13 +623,13 @@ function mountKnightForks(boardEl, panel) {
     if (!f) { last = { kind: 'busy', x, y }; status(); return; }
     if (found[key(x, y)]) return;
     if (f.ok) {
-      found[key(x, y)] = 1; at(x, y).append(pieceEl((puz.color === 'w' ? 'b' : 'w') + 'N'));
+      found[key(x, y)] = 1; good(); at(x, y).append(pieceEl((puz.color === 'w' ? 'b' : 'w') + 'N'));
       last = { kind: 'ok', x, y, targets: f.targets };
       if (!missing().length) { finish(false); return; }
     } else if (f.attackers.length) {
-      errT++; at(x, y).classList.add('bad'); f.attackers.forEach(p => at(p.x, p.y).classList.add('att'));
+      errT++; wrong(); at(x, y).classList.add('bad'); f.attackers.forEach(p => at(p.x, p.y).classList.add('att'));
       last = { kind: 'threat', x, y, attackers: f.attackers };
-    } else { errF++; at(x, y).classList.add('bad'); last = { kind: 'weak', x, y, k: f.targets.length }; }
+    } else { errF++; wrong(); at(x, y).classList.add('bad'); last = { kind: 'weak', x, y, k: f.targets.length }; }
     status();
   }
   function newPuzzle() {
@@ -625,7 +674,7 @@ function mountSafeSquare(boardEl, panel, ctx) {
     clearInterval(tm); tm = setInterval(tick, 100); paint();
   }
   function over(kind, x, y, att) {
-    if (phase !== 'run') return; stop(); phase = 'over';
+    if (phase !== 'run') return; stop(); phase = 'over'; if (kind === 'att') sound('bad'); else if (kind === 'time') sound('end');
     res = { kind, x, y, att, n, level: level() };
     if (n > best.n) { best = { level: level(), n }; store.set('sq:best', best); }
     draw(); sqs.forEach(b => b.classList.remove('ans'));
@@ -638,7 +687,7 @@ function mountSafeSquare(boardEl, panel, ctx) {
     const a = attackersOf(puz.pieces, puz.color, x, y);
     if (!a) return;                                         // occupied square: ignored
     if (a.length) { over('att', x, y, a); return; }
-    n++; clearInterval(tm); tm = null; at(x, y).classList.add('real'); paint();
+    n++; good(); clearInterval(tm); tm = null; at(x, y).classList.add('real'); paint();
     lock = setTimeout(() => { lock = null; next(); }, 350);
   }
   act.onclick = () => {
@@ -646,6 +695,65 @@ function mountSafeSquare(boardEl, panel, ctx) {
     n = 0; res = null; phase = 'run'; next();
   };
   clear(); sqs.forEach(b => b.classList.remove('ans')); clock.textContent = fmt(sfTime(1) * 1000); paint();
+  return { unmount() { stop(); clock.classList.remove('on', 'low'); }, relabel() { paint(); } };
+}
+
+// ---------- Drill: Safe Square Survivor (full) ----------
+// Mark every square no piece attacks, before the clock runs out. Right marks stay green; a wrong mark ends the run. Finding them all
+// raises the level (cap 10, then it stays there).
+function mountSafeSquareFull(boardEl, panel, ctx) {
+  const clock = ctx.clock; clock.classList.add('on');
+  let best = store.get('sqf:best', { level: 0, n: 0 }), n = 0, puz = null, found = {}, phase = 'idle', lock = null, tm = null, end = 0, res = null;
+  const say = mk('div', 'say'), stat = mk('div', 'prog'), marked = mk('div', 'prog'), bestEl = mk('div', 'prog'), act = mk('button', 'primary');
+  act.type = 'button'; act.id = 'act';
+  boardEl.replaceChildren(); panel.replaceChildren(say, stat, marked, bestEl, act);
+  const { sqs, at, clear } = buildBoard(boardEl, (x, y) => tap(x, y));
+  const level = () => Math.min(SF_MAX, n + 1), fmt = ms => { const s = Math.ceil(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const key = (x, y) => x + ',' + y, got = () => Object.keys(found).length;
+  const names = ps => { const L = T[lang]; const l = ps.map(p => L.pn[p.t] + L.in + sqName(p.x, p.y)); return l.length > 1 ? l.slice(0, -1).join(', ') + L.and + l[l.length - 1] : l[0]; };
+  const stop = () => { clearInterval(tm); tm = null; clearTimeout(lock); lock = null; };
+  function paint() {
+    const L = T[lang]; say.replaceChildren();
+    if (phase === 'idle' || phase === 'run') say.append(mk('div', 'msg sm', L.sfaTask));
+    else {
+      const w = mk('div'), miss = puz.safe.length - got();
+      w.append(mk('div', 'msg ' + (res.kind === 'exit' ? '' : 'no'), res.kind === 'time' ? L.sfTime : res.kind === 'att' ? L.sfAtt(sqName(res.x, res.y), names(res.att)) : L.sfExit), mk('div', 'msg sm', L.sfaOver(res.level, res.n)));
+      if (miss > 0 && res.kind !== 'att') w.append(mk('div', 'msg sm', L.sfaMissed(miss)));
+      say.append(w);
+    }
+    stat.textContent = phase === 'idle' ? '' : L.sfLevel(level()) + (level() >= SF_MAX ? ' · ' + L.sfMax : '') + ' · ' + L.sfHits(n);
+    marked.textContent = phase === 'run' || phase === 'over' ? L.sfaMarked(got(), puz.safe.length) : '';
+    bestEl.textContent = L.sfBest(best.level, best.n);
+    act.textContent = phase === 'run' ? L.sfEnd : phase === 'idle' ? L.sfStart : L.sfAgain; act.classList.toggle('dim', phase === 'run');
+  }
+  function draw() { clear(); puz.pieces.forEach(p => at(p.x, p.y).append(pieceEl(puz.color + p.t))); sqs.forEach(b => b.classList.add('ans')); }
+  function tick() { const left = Math.max(0, end - Date.now()); clock.textContent = fmt(left); clock.classList.toggle('low', left <= 5000); if (!left) over('time'); }
+  function next() {
+    puz = genSFA(level()); found = {}; draw(); end = Date.now() + sfaTime(level(), puz.safe.length) * 1000; tick();
+    clearInterval(tm); tm = setInterval(tick, 100); paint();
+  }
+  function over(kind, x, y, att) {
+    if (phase !== 'run') return; stop(); phase = 'over'; if (kind === 'att') sound('bad'); else if (kind === 'time') sound('end');
+    res = { kind, x, y, att, n, level: level() };
+    if (n > best.n) { best = { level: level(), n }; store.set('sqf:best', best); }
+    draw(); sqs.forEach(b => b.classList.remove('ans'));
+    puz.safe.forEach(([a, b]) => at(a, b).classList.add(found[key(a, b)] ? 'real' : 'miss'));
+    if (kind === 'att') { at(x, y).classList.add('bad'); att.forEach(p => at(p.x, p.y).classList.add('att')); }
+    clock.classList.remove('low'); paint();
+  }
+  function tap(x, y) {
+    if (phase !== 'run' || lock) return;
+    const a = attackersOf(puz.pieces, puz.color, x, y);
+    if (!a || found[key(x, y)]) return;                      // occupied or already marked: ignored
+    if (a.length) { over('att', x, y, a); return; }
+    found[key(x, y)] = 1; good(); at(x, y).classList.add('real'); paint();
+    if (got() === puz.safe.length) { n++; clearInterval(tm); tm = null; paint(); lock = setTimeout(() => { lock = null; next(); }, 450); }
+  }
+  act.onclick = () => {
+    if (phase === 'run') { over('exit'); return; }
+    n = 0; res = null; phase = 'run'; next();
+  };
+  clear(); sqs.forEach(b => b.classList.remove('ans')); clock.textContent = fmt(sfaTime(1, 6) * 1000); paint();
   return { unmount() { stop(); clock.classList.remove('on', 'low'); }, relabel() { paint(); } };
 }
 
@@ -709,14 +817,14 @@ function mountForkSkewer(boardEl, panel) {
     const k = fsKey(x, y);
     if (phase === 'mark') {
       if ((x === puz.K.x && y === puz.K.y) || (x === puz.M.x && y === puz.M.y)) return;
-      if (marks[k]) delete marks[k]; else marks[k] = 1;
+      if (marks[k]) delete marks[k]; else marks[k] = 1; sound('move');
       drawMarks(); paint();
     } else if (puz.res[k]) { tapped = k; paint(); }
   }
   function check(noneBtn) {
     if (phase !== 'mark') return; if (noneBtn) marks = {};
     const mk_ = Object.keys(marks), wrong = mk_.filter(k => !puz.res[k].win), missed = puz.R.filter(k => !marks[k]), alt = puz.B.filter(k => !marks[k]);
-    out = { wrong, missed, alt, perfect: !wrong.length && !missed.length }; phase = 'result'; tapped = null;
+    out = { wrong, missed, alt, perfect: !wrong.length && !missed.length }; phase = 'result'; tapped = null; sound(out.perfect ? 'ok' : 'bad');
     const v = store.get('fs:scores', { ok: 0, total: 0 }); v.total++; if (out.perfect) v.ok++; store.set('fs:scores', v);
     drawResult(); paint();
   }
@@ -785,15 +893,15 @@ function mountSafeMoves(boardEl, panel) {
     const k = key(x, y); if (found[k]) return;
     const m = puz.legal.find(q => q.x === x && q.y === y);
     if (m && !m.att.length) {
-      found[k] = 1; at(x, y).classList.add('real');
+      found[k] = 1; good(m.cap); at(x, y).classList.add('real');
       if (m.cap) at(x, y).append(mk('span', 'n', '×')); else { const p = pieceEl(puz.mc + puz.t); p.classList.add('ghost'); at(x, y).append(p); }
       last = { kind: 'ok', x, y, cap: m.cap };
       if (!missing().length) { finish(false); return; }
     } else if (m) {
-      errA++; at(x, y).classList.add('bad'); m.att.forEach(p => at(p.x, p.y).classList.add('att'));
+      errA++; wrong(); at(x, y).classList.add('bad'); m.att.forEach(p => at(p.x, p.y).classList.add('att'));
       last = { kind: 'threat', x, y, att: m.att, cap: m.cap };
     } else {
-      errI++; at(x, y).classList.add('bad'); const w = smWhy(puz.t, puz.mc, puz.me, puz.enemies, x, y);
+      errI++; wrong(); at(x, y).classList.add('bad'); const w = smWhy(puz.t, puz.mc, puz.me, puz.enemies, x, y);
       last = w.why === 'blocked' ? { kind: 'blocked', x, y, by: w.by } : { kind: 'illegal', x, y };
     }
     status();
@@ -815,7 +923,7 @@ function mountSafeMoves(boardEl, panel) {
 // Your piece and n enemy pawns. Capture all of them, one per move: every move must capture. Pick a route that strands the piece and
 // you lose (the solution is then shown). Nothing ever captures your piece: this trains seeing the path.
 function mountCapturePath(boardEl, panel) {
-  const PCS = ['random', 'N', 'B', 'R', 'Q', 'K'], CNT = ['random', 2, 3, 4, 5, 6, 7, 8];
+  const PCS = ['random', 'N', 'B', 'R', 'Q'], CNT = ['random', 2, 3, 4, 5, 6, 7, 8];
   let sp = store.get('cp:piece', 'N'), sc = store.get('cp:count', 'random'); if (!PCS.includes(sp)) sp = 'N'; if (!CNT.includes(sc)) sc = 'random';
   let puz = null, cur = null, mask = 0, trail = [], phase = 'play', last = null, counted = false, memo = new Map();
   const bar = mk('div', 'bar'), tp = mkSelect(bar, 'cpPiece', PCS), tc = mkSelect(bar, 'cpCount', CNT); tp.s.id = 'cpp'; tc.s.id = 'cpn'; tp.s.value = sp; tc.s.value = sc;
@@ -863,10 +971,10 @@ function mountCapturePath(boardEl, panel) {
     const i = puz.targets.findIndex((p, j) => ((mask >> j) & 1) && p.x === x && p.y === y);
     if (i < 0) { last = { kind: 'pick' }; status(); return; }
     const m = ptCaps(puz.t, puz.mc, cur, puz.targets, mask).find(c => c.i === i);
-    if (!m) { const w = smWhy(puz.t, puz.mc, cur, rem(), x, y); last = w.why === 'blocked' ? { kind: 'blocked', x, y, by: w.by } : { kind: 'cannot', x, y }; status(); return; }
-    trail.push({ x, y }); cur = { x, y }; mask &= ~(1 << i);
-    if (!mask) { phase = 'won'; last = { kind: 'win' }; record(true); }
-    else if (!ptSolve(puz.t, puz.mc, cur, puz.targets, mask, memo)) { phase = 'lost'; last = { kind: 'lost' }; record(false); }
+    if (!m) { sound('bad'); const w = smWhy(puz.t, puz.mc, cur, rem(), x, y); last = w.why === 'blocked' ? { kind: 'blocked', x, y, by: w.by } : { kind: 'cannot', x, y }; status(); return; }
+    trail.push({ x, y }); cur = { x, y }; mask &= ~(1 << i); sound('cap');
+    if (!mask) { phase = 'won'; last = { kind: 'win' }; record(true); setTimeout(() => sound('ok'), 120); }
+    else if (!ptSolve(puz.t, puz.mc, cur, puz.targets, mask, memo)) { phase = 'lost'; last = { kind: 'lost' }; record(false); setTimeout(() => sound('end'), 120); }
     else last = { kind: 'ok', x, y };
     render(); status();
   }
@@ -923,9 +1031,9 @@ function mountKingZone(boardEl, panel) {
     const c = puz.cand.find(q => q.x === x && q.y === y); if (!c) { last = { kind: 'out' }; status(); return; }
     if (found[key(x, y)]) return;
     if (c.ok) {
-      found[key(x, y)] = 1; const b = at(x, y); b.classList.remove('cand'); b.classList.add('real'); b.append(mk('span', 'n big', GLY[c.by.t]));
+      found[key(x, y)] = 1; good(); const b = at(x, y); b.classList.remove('cand'); b.classList.add('real'); b.append(mk('span', 'n big', GLY[c.by.t]));
       last = { kind: 'ok', x, y }; if (!missing().length) { finish(false); return; }
-    } else { errs++; at(x, y).classList.add('bad'); if (c.by) at(c.by.x, c.by.y).classList.add('att'); last = { kind: c.why, x, y }; }
+    } else { errs++; wrong(); at(x, y).classList.add('bad'); if (c.by) at(c.by.x, c.by.y).classList.add('att'); last = { kind: c.why, x, y }; }
     status();
   }
   function newPuzzle() {
@@ -980,8 +1088,8 @@ function mountLoosePieces(boardEl, panel) {
     const a = puz.info.find(q => q.p.x === x && q.p.y === y); if (!a) return;
     if (a.p.t === 'K') { last = { kind: 'king' }; status(); return; }
     if (found[key(x, y)]) return;
-    if (!a.def.length) { found[key(x, y)] = 1; at(x, y).classList.add('real'); last = { kind: 'ok', x, y }; if (!missing().length) { finish(false); return; } }
-    else { errs++; at(x, y).classList.add('bad'); a.def.forEach(p => at(p.x, p.y).classList.add('att')); last = { kind: 'prot', x, y, def: a.def }; }
+    if (!a.def.length) { found[key(x, y)] = 1; good(); at(x, y).classList.add('real'); last = { kind: 'ok', x, y }; if (!missing().length) { finish(false); return; } }
+    else { errs++; wrong(); at(x, y).classList.add('bad'); a.def.forEach(p => at(p.x, p.y).classList.add('att')); last = { kind: 'prot', x, y, def: a.def }; }
     status();
   }
   function newPuzzle() {
@@ -999,6 +1107,7 @@ const DRILLS = [
   { id: 'invisible-knight', mount: mountInvisibleKnight },
   { id: 'knight-forks', mount: mountKnightForks },
   { id: 'safe-square', mount: mountSafeSquare },
+  { id: 'safe-square-all', mount: mountSafeSquareFull },
   { id: 'fork-skewer', mount: mountForkSkewer },
   { id: 'safe-moves', mount: mountSafeMoves },
   { id: 'capture-path', mount: mountCapturePath },
@@ -1014,7 +1123,7 @@ function paint() {
   document.querySelectorAll('[data-i]').forEach(e => { e.textContent = L[e.dataset.i]; });
   [...sel.options].forEach(o => { o.textContent = L.names[o.value]; });
   sel.setAttribute('aria-label', L.aria);
-  $('#lang').textContent = L.other;
+  $('#lang').textContent = L.other; $('#nextd').textContent = L.nextDrill + ' ›';
   let tok = false; try { tok = !!localStorage.tok; } catch (e) {}
   $('#auth').textContent = tok ? L.logged : L.login;
   if (cur && cur.relabel) cur.relabel();
@@ -1027,6 +1136,10 @@ function openDrill(id) {
   cur = d.mount($('#cg'), $('#dp'), { clock: $('#clk2') });
 }
 sel.onchange = () => openDrill(sel.value);
+$('#nextd').onclick = () => { const i = DRILLS.findIndex(d => d.id === sel.value); openDrill(DRILLS[(i + 1) % DRILLS.length].id); };
+const snd = $('#snd'), paintSnd = () => { snd.textContent = soundOn ? '🔊' : '🔇'; snd.setAttribute('aria-pressed', String(soundOn)); };
+snd.onclick = () => { soundOn = !soundOn; store.set('sound', soundOn); paintSnd(); sound('move'); };
+paintSnd();
 $('#auth').onclick = () => { location.href = '../'; };
 $('#lang').onclick = () => { lang = lang === 'es' ? 'en' : 'es'; try { localStorage.lang = lang; } catch (e) {} paint(); };
 openDrill(store.get('drill', DRILLS[0].id));

@@ -138,6 +138,8 @@ html,body{overscroll-behavior-y:contain}
       <button data-t="3+2">3+2</button><button data-t="5+3">5+3</button>
       <button data-t="10+0" class="sel">10+0</button><button data-t="15+10">15+10</button>
     </div>
+    <div class="row"><label class="mute" data-i="variant" for="variant"></label><select id="variant"><option value="standard" data-i="vstd"></option><option value="chess960" data-i="v960"></option></select></div>
+    <p class="mute" id="vhint" data-i="v960hint" hidden></p>
     <label class="sw"><input type="checkbox" id="rated" checked><span data-i="rated"></span></label>
     <button id="go" class="primary" data-i="go"></button>
     <button id="cancel" class="primary" data-i="cancel" hidden></button>

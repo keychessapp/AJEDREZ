@@ -14,4 +14,4 @@ Drills: open /drills/ (link in the menu). Same palette, knights and language (ES
 
 Biblioteca: biblioteca/<book>.txt, one file per book (format in the comments of rockwell-1890.txt). Register new books in BOOKS in app.js.
 Positions are played against Lichess AI level 8 (needs login). The Rockwell file only has a TEST position until the real ones are added.
-Drills: invisible-knight, knight-forks, safe-square, fork-skewer, safe-moves, capture-path, king-zone and loose-pieces (drills/drills.js, add new ones to DRILLS there).
+Drills: invisible-knight, knight-forks, safe-square, safe-square-all, fork-skewer, safe-moves, capture-path, king-zone and loose-pieces (drills/drills.js, add new ones to DRILLS there).

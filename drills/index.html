@@ -34,7 +34,11 @@ main{display:flex;gap:32px;justify-content:center;align-items:flex-start;padding
 #cg{width:100%;height:100%;border-radius:6px;overflow:hidden;box-shadow:0 8px 30px #0006;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));user-select:none;-webkit-user-select:none}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;width:100%;max-width:340px}
 #auth{max-width:55vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#drill{width:100%;margin-bottom:12px;font-size:18px;font-weight:700}
+.dsel{display:flex;gap:6px;margin-bottom:12px}
+#drill{flex:1;min-width:0;font-size:16px;font-weight:700}
+#snd{flex:none;padding:6px 10px;font-size:16px}
+#nextd{flex:none;padding:6px 10px;font-size:14px;white-space:nowrap;background:var(--accent)}
+#nextd:hover{background:var(--accent);filter:brightness(1.1)}
 .bar{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .bar label{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--mute);font-size:14px}
 .bar select{flex:0 0 58%;min-width:0;font-size:14px}
@@ -125,7 +129,7 @@ html,body{overscroll-behavior-y:contain}
  #pzv select{margin:2px 0 8px}#pzv p{margin:4px 0}
  details summary{margin:8px 0 4px}
 
- #drill{font-size:15px;padding:6px 8px;margin-bottom:6px}
+ .dsel{margin-bottom:6px}#drill{font-size:15px;padding:6px 8px}
  .bar{flex-direction:row;flex-wrap:wrap;gap:6px;margin-bottom:6px}
  .bar label{flex:1 1 130px;font-size:13px;gap:6px}.bar select{flex:1 1 auto;font-size:13px;padding:5px 6px}
  .bcol>.pl{display:none}.bcol:has(.clk.on)>.pl:last-child{display:flex}   /* the empty spacer row is only kept while a drill shows its clock */
@@ -173,7 +177,7 @@ html,body{overscroll-behavior-y:contain}
     <div class="board"><div id="cg"></div></div>
     <div class="pl"><span></span><span class="clk" id="clk2" aria-hidden="true">--:--</span></div>
   </div>
-  <section class="card"><select id="drill"></select><div id="dp"></div></section>
+  <section class="card"><div class="dsel"><select id="drill"></select><button id="snd" type="button" aria-label="Sound"></button><button id="nextd" type="button"></button></div><div id="dp"></div></section>
 </main>
 <script src="drills.js"></script>
 </body></html>
